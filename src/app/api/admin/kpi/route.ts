@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { layDanhSachGiangVien, layDanhSachPhieu } from "@/lib/data";
-import { locPhieuDaNopTrongKy, tinhKpiTheoGV, tinhKpiTheoQTDT } from "@/lib/kpi";
+import {
+  locPhieuDaNopTrongKy,
+  nguongKpiTheoThang,
+  tinhKpiTheoGV,
+  tinhKpiTheoQTDT,
+  tinhKpiTongHop,
+} from "@/lib/kpi";
 
 export async function GET(req: NextRequest) {
   const thang = req.nextUrl.searchParams.get("thang");
@@ -10,9 +16,15 @@ export async function GET(req: NextRequest) {
       layDanhSachPhieu(),
     ]);
     const daNop = locPhieuDaNopTrongKy(phieus, thang);
-    const kpiGV = tinhKpiTheoGV(giangViens, daNop);
-    const kpiQTDT = tinhKpiTheoQTDT(kpiGV);
-    return NextResponse.json({ kpiGV, kpiQTDT });
+    const kpiGV = tinhKpiTheoGV(giangViens, daNop, thang);
+    const kpiQTDT = tinhKpiTheoQTDT(kpiGV, thang);
+    const kpiTongHop = tinhKpiTongHop(kpiGV, thang);
+    return NextResponse.json({
+      kpiGV,
+      kpiQTDT,
+      kpiTongHop,
+      nguongApDung: nguongKpiTheoThang(thang),
+    });
   } catch (err) {
     return NextResponse.json(
       { loi: err instanceof Error ? err.message : "Loi khong xac dinh" },

@@ -2,28 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-type KpiGV = {
-  MaGV: string;
-  HoTen: string;
-  QTDT: string;
-  soPhieu: number;
-  soPhieuDat: number;
-  tyLe: number | null;
-  dat: boolean;
-};
-type KpiQTDT = {
-  QTDT: string;
-  soPhieu: number;
-  soPhieuDat: number;
-  tyLe: number | null;
-  dat: boolean;
-};
+type KetQua = { soPhieu: number; soPhieuDat: number; tyLe: number | null; dat: boolean };
+type KpiGV = KetQua & { MaGV: string; HoTen: string; QTDT: string };
+type KpiQTDT = KetQua & { QTDT: string };
+type KpiTongHop = KetQua & { ten: string; vaiTro: string };
 
 export default function KpiPage() {
   const [thang, setThang] = useState(() => new Date().toISOString().slice(0, 7));
   const [locTheoThang, setLocTheoThang] = useState(true);
   const [kpiGV, setKpiGV] = useState<KpiGV[]>([]);
   const [kpiQTDT, setKpiQTDT] = useState<KpiQTDT[]>([]);
+  const [kpiTongHop, setKpiTongHop] = useState<KpiTongHop | null>(null);
+  const [nguongApDung, setNguongApDung] = useState(0.96);
   const [dangTai, setDangTai] = useState(true);
 
   useEffect(() => {
@@ -33,17 +23,29 @@ export default function KpiPage() {
       .then((d) => {
         setKpiGV(d.kpiGV ?? []);
         setKpiQTDT(d.kpiQTDT ?? []);
+        setKpiTongHop(d.kpiTongHop ?? null);
+        setNguongApDung(d.nguongApDung ?? 0.96);
       })
       .finally(() => setDangTai(false));
   }, [thang, locTheoThang]);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-bold text-vnpt-blue">KPI Giang vien / QTDT</h1>
-      <p className="text-sm text-slate-600 -mt-4">
-        KPI = so phieu diem trung binh &gt;8 / tong so phieu da nop trong ky —
-        dat khi ty le &ge; 96%.
-      </p>
+      <h1 className="text-lg font-bold text-vnpt-blue">KPI Giang vien / QTDT / CV QTHT</h1>
+      <div className="text-sm text-slate-600 -mt-4 space-y-1">
+        <p>
+          KPI = so phieu diem trung binh &gt;8 / tong so phieu da nop trong ky.
+        </p>
+        <p>
+          Nguong: <b>≥90%</b> ap dung thang 1–7/2026, <b>≥96%</b> ap dung tu
+          thang 8/2026 — dang xem theo nguong{" "}
+          <b>{(nguongApDung * 100).toFixed(0)}%</b>.
+        </p>
+        <p>
+          GV/QTDT/CV QTHT khong day (khong co phieu) trong thang dang loc thi
+          tinh thang do la <b>100%</b> (khong bi tru KPI).
+        </p>
+      </div>
 
       <div className="flex items-center gap-3 text-sm">
         <label className="flex items-center gap-1">
@@ -69,6 +71,27 @@ export default function KpiPage() {
       ) : (
         <>
           <section>
+            <h2 className="font-semibold mb-2">CV Quan tri he thong (CV QTHT) — gop tat ca GV</h2>
+            <Bang
+              cols={["Ho ten", "Vai tro", "So phieu", "Phieu dat", "Ty le", "KPI"]}
+              rows={
+                kpiTongHop
+                  ? [
+                      [
+                        kpiTongHop.ten,
+                        kpiTongHop.vaiTro,
+                        String(kpiTongHop.soPhieu),
+                        String(kpiTongHop.soPhieuDat),
+                        kpiTongHop.tyLe === null ? "-" : `${(kpiTongHop.tyLe * 100).toFixed(1)}%`,
+                        <Badge key="b" ketQua={kpiTongHop} />,
+                      ],
+                    ]
+                  : []
+              }
+            />
+          </section>
+
+          <section>
             <h2 className="font-semibold mb-2">Theo Quan tri dao tao (QTDT)</h2>
             <Bang
               cols={["QTDT", "So phieu", "Phieu dat", "Ty le", "KPI"]}
@@ -77,7 +100,7 @@ export default function KpiPage() {
                 String(k.soPhieu),
                 String(k.soPhieuDat),
                 k.tyLe === null ? "-" : `${(k.tyLe * 100).toFixed(1)}%`,
-                <Badge key="b" dat={k.dat} coPhieu={k.soPhieu > 0} />,
+                <Badge key="b" ketQua={k} />,
               ])}
             />
           </section>
@@ -92,7 +115,7 @@ export default function KpiPage() {
                 String(k.soPhieu),
                 String(k.soPhieuDat),
                 k.tyLe === null ? "-" : `${(k.tyLe * 100).toFixed(1)}%`,
-                <Badge key="b" dat={k.dat} coPhieu={k.soPhieu > 0} />,
+                <Badge key="b" ketQua={k} />,
               ])}
             />
           </section>
@@ -102,15 +125,24 @@ export default function KpiPage() {
   );
 }
 
-function Badge({ dat, coPhieu }: { dat: boolean; coPhieu: boolean }) {
-  if (!coPhieu) return <span className="text-slate-400 text-xs">Chua co phieu</span>;
+function Badge({ ketQua }: { ketQua: KetQua }) {
+  if (ketQua.tyLe === null) {
+    return <span className="text-slate-400 text-xs">Chua co phieu</span>;
+  }
+  if (ketQua.soPhieu === 0) {
+    return (
+      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
+        Dat (khong day thang nay)
+      </span>
+    );
+  }
   return (
     <span
       className={`text-xs font-semibold px-2 py-1 rounded-full ${
-        dat ? "bg-green-100 text-green-700" : "bg-vnpt-red/10 text-vnpt-red"
+        ketQua.dat ? "bg-green-100 text-green-700" : "bg-vnpt-red/10 text-vnpt-red"
       }`}
     >
-      {dat ? "Dat" : "Chua dat"}
+      {ketQua.dat ? "Dat" : "Chua dat"}
     </span>
   );
 }

@@ -10,6 +10,36 @@ const TABS = {
 
 type TabName = (typeof TABS)[keyof typeof TABS];
 
+/**
+ * Anh xa ten cot thuc te tren Google Sheet (tieng Viet co dau, do nguoi dung
+ * tu dat) sang ten truong noi bo code dung (khong dau). Cho phep sheet giu
+ * nguyen ten cot de nguoi dung de doc, khong bat phai doi ten cot.
+ */
+const HEADER_MAP: Partial<Record<TabName, Record<string, string>>> = {
+  GiangVien: {
+    "Mã GV": "MaGV",
+    "Họ tên": "HoTen",
+    HoTenGV: "HoTen",
+    "QTĐT phụ trách": "QTDT",
+    QTDTPhuTrach: "QTDT",
+  },
+  Khoa: {
+    "Mã lớp": "MaKhoa",
+    MaLop: "MaKhoa",
+    "Nội dung": "TenKhoa",
+    NoiDung: "TenKhoa",
+    "Loại lớp": "LoaiLop",
+  },
+  HocVien: {
+    "Mã học viên": "MaHV",
+    "Họ tên": "HoTen",
+    HoTenHV: "HoTen",
+    "Đơn vị": "DonVi",
+    "Miền": "Mien",
+    "Mã khoá": "MaKhoa",
+  },
+};
+
 let cachedClient: sheets_v4.Sheets | null = null;
 
 function getEnv(name: string): string {
@@ -24,14 +54,26 @@ function getEnv(name: string): string {
 
 function getClient(): sheets_v4.Sheets {
   if (cachedClient) return cachedClient;
-  const email = getEnv("GOOGLE_SERVICE_ACCOUNT_EMAIL");
-  const rawKey = getEnv("GOOGLE_PRIVATE_KEY");
-  const privateKey = rawKey.replace(/\\n/g, "\n");
-  const auth = new google.auth.JWT({
-    email,
-    key: privateKey,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
+
+  const dungOAuth = !!process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
+
+  const auth = dungOAuth
+    ? (() => {
+        const client = new google.auth.OAuth2(
+          getEnv("GOOGLE_OAUTH_CLIENT_ID"),
+          getEnv("GOOGLE_OAUTH_CLIENT_SECRET")
+        );
+        client.setCredentials({
+          refresh_token: getEnv("GOOGLE_OAUTH_REFRESH_TOKEN"),
+        });
+        return client;
+      })()
+    : new google.auth.JWT({
+        email: getEnv("GOOGLE_SERVICE_ACCOUNT_EMAIL"),
+        key: getEnv("GOOGLE_PRIVATE_KEY").replace(/\\n/g, "\n"),
+        scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+      });
+
   cachedClient = google.sheets({ version: "v4", auth });
   return cachedClient;
 }
@@ -52,6 +94,7 @@ export async function readTab<T extends Record<string, string>>(
   const values = res.data.values ?? [];
   if (values.length === 0) return { headers: [], rows: [], rowNumbers: [] };
   const headers = values[0] as string[];
+  const map = HEADER_MAP[tab] ?? {};
   const rows: T[] = [];
   const rowNumbers: number[] = [];
   for (let i = 1; i < values.length; i++) {
@@ -59,7 +102,7 @@ export async function readTab<T extends Record<string, string>>(
     if (!raw || raw.every((c) => c === undefined || c === "")) continue;
     const obj: Record<string, string> = {};
     headers.forEach((h, idx) => {
-      obj[h] = raw[idx] ?? "";
+      obj[map[h] ?? h] = raw[idx] ?? "";
     });
     rows.push(obj as T);
     rowNumbers.push(i + 1);

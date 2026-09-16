@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .claude/
+
+# du lieu/credential nhay cam - khong bao gio dua len GitHub
+client_secret_*.json
+*.xlsx
+*.xls
+

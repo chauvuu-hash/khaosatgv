@@ -170,9 +170,11 @@ git push -u origin main
 
 Theo dung huong dan thang 9: chay song song voi cach tinh thu cong tren
 Google Sheet cu it nhat 1 dot, doi chieu so lieu khop truoc khi dung
-chinh thuc. Neu lech so, kha nang cao nam o gia dinh "diem >8" tinh tren
-**diem trung binh 10 cau** cua 1 phieu (xem `src/lib/kpi.ts`) — can xac
-nhan lai voi nguoi phu trach neu chua chac.
+chinh thuc.
+
+Da chot (16/9/2026, sau khi doi chieu voi cach tinh tay phat hien lech so):
+"diem dat" = **diem trung binh 10 cau >= 8** (khong phai > 8 nhu gia dinh
+ban dau trong dac ta) — xem `src/lib/kpi.ts` (`NGUONG_DIEM_DAT`).
 
 ## 6. Ban giao khi P.CN xay he thong chinh thuc
 

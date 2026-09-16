@@ -1,5 +1,6 @@
 import type { GiangVien, PhieuKhaoSat } from "./types";
 
+/** 1 phieu duoc tinh "dat" khi diem trung binh 10 cau >= 8 (da chot voi P.NVDT). */
 export const NGUONG_DIEM_DAT = 8;
 
 /**
@@ -57,7 +58,7 @@ export function tinhKpiTheoGV(
     const phieuCuaGV = phieuDaNop.filter((p) => p.MaGV === gv.MaGV);
     const soPhieu = phieuCuaGV.length;
     const soPhieuDat = phieuCuaGV.filter(
-      (p) => parseFloat(p.DiemTB) > NGUONG_DIEM_DAT
+      (p) => parseFloat(p.DiemTB) >= NGUONG_DIEM_DAT
     ).length;
     return { MaGV: gv.MaGV, HoTen: gv.HoTen, QTDT: gv.QTDT, ...tinhKetQua(soPhieu, soPhieuDat, thang) };
   });

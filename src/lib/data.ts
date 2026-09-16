@@ -1,4 +1,4 @@
-import { appendRows, readTab, TABS, updateRow } from "./sheets";
+import { appendRow, appendRows, readTab, TABS, updateRow } from "./sheets";
 import type { GiangVien, HocVien, Khoa, PhieuKhaoSat } from "./types";
 
 export async function layDanhSachGiangVien() {
@@ -51,9 +51,54 @@ export async function taoDotGuiKhaoSat(params: {
     Diem10: "",
     DiemTB: "",
     TrangThai: "Chua nop",
+    HoTenNhap: "",
+    DonViNhap: "",
   }));
   await appendRows(TABS.PhieuKhaoSat, phieus as unknown as Record<string, string>[]);
   return phieus;
+}
+
+/**
+ * Nop 1 phieu qua "link dung chung" (chua co danh sach hoc vien/email, QTDT
+ * gui link qua Zalo/Telegram). Hoc vien tu go Ho ten + Don vi. Khac voi luong
+ * ca nhan hoa: phieu duoc tao va hoan thanh ngay trong 1 buoc (khong co giai
+ * doan "Chua nop"), va link co the dung lai nhieu lan (moi lan nop tao 1 dong moi).
+ */
+export async function taoPhieuDungChung(params: {
+  maKhoa: string;
+  maGV: string;
+  ngayDay: string;
+  hoTen: string;
+  donVi: string;
+  diem: number[];
+}): Promise<PhieuKhaoSat> {
+  const now = new Date().toISOString();
+  const diemTB = params.diem.reduce((a, b) => a + b, 0) / params.diem.length;
+  const phieu: PhieuKhaoSat = {
+    MaPhieu: `PC${Date.now()}${Math.random().toString(36).slice(2, 8)}`,
+    MaHV: "",
+    MaKhoa: params.maKhoa,
+    MaGV: params.maGV,
+    NgayDay: params.ngayDay,
+    NgayGui: params.ngayDay,
+    NgayHoanThanh: now,
+    Diem1: String(params.diem[0]),
+    Diem2: String(params.diem[1]),
+    Diem3: String(params.diem[2]),
+    Diem4: String(params.diem[3]),
+    Diem5: String(params.diem[4]),
+    Diem6: String(params.diem[5]),
+    Diem7: String(params.diem[6]),
+    Diem8: String(params.diem[7]),
+    Diem9: String(params.diem[8]),
+    Diem10: String(params.diem[9]),
+    DiemTB: diemTB.toFixed(2),
+    TrangThai: "Da nop",
+    HoTenNhap: params.hoTen,
+    DonViNhap: params.donVi,
+  };
+  await appendRow(TABS.PhieuKhaoSat, phieu as unknown as Record<string, string>);
+  return phieu;
 }
 
 export async function ghiKetQuaPhieu(

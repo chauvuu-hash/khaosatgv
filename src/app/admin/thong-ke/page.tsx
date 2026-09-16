@@ -9,11 +9,13 @@ type Dot = {
   maGV: string;
   ngayGui: string;
   ngayDay: string;
+  coDanhSach: boolean;
   tenKhoa: string;
   tenGV: string;
   tongSo: number;
   soDaNop: number;
   hocVienChuaNop: HocVienChuaNop[];
+  dsHoTenDaNopQuaLinkChung: string[];
 };
 
 export default function ThongKePage() {
@@ -73,22 +75,49 @@ export default function ThongKePage() {
             >
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <p className="font-semibold">
+                  <p className="font-semibold flex items-center gap-2">
                     {d.tenKhoa} &middot; {d.tenGV}
+                    {!d.coDanhSach && (
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-vnpt-blue/10 text-vnpt-blue">
+                        Link dung chung
+                      </span>
+                    )}
                   </p>
-                  <p className="text-xs text-slate-500">
-                    Ngay day: {d.ngayDay || "-"} &middot; Gui luc:{" "}
-                    {new Date(d.ngayGui).toLocaleString("vi-VN")}
-                  </p>
+                  {d.coDanhSach ? (
+                    <p className="text-xs text-slate-500">
+                      Ngay day: {d.ngayDay || "-"} &middot; Gui luc:{" "}
+                      {new Date(d.ngayGui).toLocaleString("vi-VN")}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-slate-500">Ngay day: {d.ngayDay || "-"}</p>
+                  )}
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-vnpt-blue text-lg">
-                    {d.soDaNop}/{d.tongSo} ({tyLe}%)
-                  </p>
+                  {d.coDanhSach ? (
+                    <p className="font-bold text-vnpt-blue text-lg">
+                      {d.soDaNop}/{d.tongSo} ({tyLe}%)
+                    </p>
+                  ) : (
+                    <p className="font-bold text-vnpt-blue text-lg">{d.soDaNop} da nop</p>
+                  )}
                 </div>
               </div>
 
-              {d.hocVienChuaNop.length > 0 ? (
+              {!d.coDanhSach ? (
+                <div className="mt-3 border-t border-slate-100 pt-3">
+                  <p className="text-xs text-slate-400 mb-2">
+                    Gui qua link dung chung nen khong co danh sach du kien, chi
+                    dem duoc so nguoi da nop.
+                  </p>
+                  {d.dsHoTenDaNopQuaLinkChung.length > 0 && (
+                    <ul className="text-sm text-slate-600 list-disc list-inside">
+                      {d.dsHoTenDaNopQuaLinkChung.map((ten, i) => (
+                        <li key={i}>{ten}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : d.hocVienChuaNop.length > 0 ? (
                 <div className="mt-3 border-t border-slate-100 pt-3">
                   <p className="text-sm font-medium mb-1">
                     Chua nop ({d.hocVienChuaNop.length}):

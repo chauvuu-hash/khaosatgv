@@ -19,6 +19,8 @@ export default function GuiKhaoSatPage() {
   const [dangGui, setDangGui] = useState(false);
   const [thongBao, setThongBao] = useState<string | null>(null);
   const [loi, setLoi] = useState<string | null>(null);
+  const [linkChung, setLinkChung] = useState<string | null>(null);
+  const [daCopy, setDaCopy] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/gui-khao-sat")
@@ -68,6 +70,27 @@ export default function GuiKhaoSatPage() {
       );
     } finally {
       setDangGui(false);
+    }
+  }
+
+  function taoLinkChung() {
+    setLoi(null);
+    if (!maKhoa || !maGV) {
+      setLoi("Vui long chon khoa hoc va giang vien truoc.");
+      return;
+    }
+    const url = `${window.location.origin}/khao-sat-chung/${encodeURIComponent(maKhoa)}/${encodeURIComponent(maGV)}/${encodeURIComponent(ngayDay)}`;
+    setLinkChung(url);
+    setDaCopy(false);
+  }
+
+  async function copyLinkChung() {
+    if (!linkChung) return;
+    try {
+      await navigator.clipboard.writeText(linkChung);
+      setDaCopy(true);
+    } catch {
+      setLoi("Khong copy duoc, vui long bam giu va copy thu cong.");
     }
   }
 
@@ -180,6 +203,40 @@ export default function GuiKhaoSatPage() {
         >
           {dangGui ? "Dang gui..." : "Gui khao sat"}
         </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3 max-w-xl">
+        <h2 className="font-semibold">Chua co danh sach hoc vien / email?</h2>
+        <p className="text-sm text-slate-600">
+          Tao 1 link dung chung cho khoa + giang vien + ngay day da chon o
+          tren, gui qua Zalo/Telegram cho ca lop. Hoc vien tu dien Ho ten khi
+          vao lam khao sat. Link nay dung duoc nhieu lan (khong khoa sau khi
+          1 nguoi da nop).
+        </p>
+        <button
+          type="button"
+          onClick={taoLinkChung}
+          className="bg-vnpt-blue text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90"
+        >
+          Tao link dung chung
+        </button>
+        {linkChung && (
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={linkChung}
+              className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-600"
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <button
+              type="button"
+              onClick={copyLinkChung}
+              className="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 shrink-0"
+            >
+              {daCopy ? "Da copy" : "Copy"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

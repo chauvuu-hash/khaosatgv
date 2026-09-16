@@ -41,6 +41,9 @@ export type PhieuKhaoSat = {
   Diem10: string;
   DiemTB: string;
   TrangThai: string;
+  /** Chi dung khi nop qua link dung chung (khong co MaHV vi chua co danh sach hoc vien). */
+  HoTenNhap: string;
+  DonViNhap: string;
 };
 
 export const CAU_HOI_KHAO_SAT: string[] = [

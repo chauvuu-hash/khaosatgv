@@ -29,12 +29,14 @@ export async function GET() {
         const [maKhoa, maGV, ngayGui] = key.split("__");
         const daNop = list.filter((p) => p.TrangThai === "Da nop");
         const chuaNop = list.filter((p) => p.TrangThai !== "Da nop");
+        const coDanhSach = list.some((p) => !!p.MaHV);
         return {
           key,
           maKhoa,
           maGV,
           ngayGui,
           ngayDay: list[0]?.NgayDay ?? "",
+          coDanhSach,
           tenKhoa: khoas.find((k) => k.MaKhoa === maKhoa)?.TenKhoa ?? maKhoa,
           tenGV: giangViens.find((g) => g.MaGV === maGV)?.HoTen ?? maGV,
           tongSo: list.length,
@@ -48,6 +50,9 @@ export async function GET() {
               email: hv?.Email ?? "",
             };
           }),
+          dsHoTenDaNopQuaLinkChung: coDanhSach
+            ? []
+            : daNop.map((p) => p.HoTenNhap || "(khong ro ten)"),
         };
       })
       .sort((a, b) => (a.ngayGui < b.ngayGui ? 1 : -1));

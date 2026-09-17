@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [loi, setLoi] = useState<string | null>(null);
   const [dangGui, setDangGui] = useState(false);
@@ -22,11 +20,17 @@ export default function LoginPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setLoi(data.loi ?? "Sai mat khau.");
+        setDangGui(false);
         return;
       }
-      router.push("/admin/gui-khao-sat");
-      router.refresh();
-    } finally {
+      // Dieu huong bang cach tai lai trang (khong dung router.push) de dam
+      // bao trinh duyet luon xin trang moi tu server voi cookie phien vua
+      // duoc set, thay vi dua vao dieu huong client-side co the bi ket qua
+      // cache cu neu router.refresh() khong lam moi kip du lieu.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- can thiet de dam bao cookie phien moi duoc doc lai
+      window.location.href = "/admin/gui-khao-sat";
+    } catch {
+      setLoi("Khong ket noi duoc may chu, vui long thu lai.");
       setDangGui(false);
     }
   }

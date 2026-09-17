@@ -14,6 +14,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin/gui-khao-sat" className="hover:underline">
               Gui khao sat
             </Link>
+            <Link href="/admin/hoc-vien" className="hover:underline">
+              Hoc vien
+            </Link>
             <Link href="/admin/thong-ke" className="hover:underline">
               Thong ke nop phieu
             </Link>

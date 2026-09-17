@@ -160,6 +160,32 @@ export async function appendRows(
   });
 }
 
+/**
+ * Giong appendRows, nhung `rows` dung ten truong noi bo (vd "HoTen") thay vi
+ * ten cot thuc te tren Sheet (vd "HoTenHV") - tu tra qua HEADER_MAP truoc
+ * khi ghi. Dung cho tab co the co ten cot tieng Viet/khac ten truong noi bo
+ * (vd HocVien), tranh ghi nham cot rong do khong khop ten.
+ */
+export async function appendRowsMapped(
+  tab: TabName,
+  rows: Record<string, string>[]
+): Promise<void> {
+  if (rows.length === 0) return;
+  const sheets = getClient();
+  const { headers } = await readTab(tab);
+  const map = HEADER_MAP[tab] ?? {};
+  const values = rows.map((row) =>
+    headers.map((h) => row[map[h] ?? h] ?? "")
+  );
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: getSheetId(),
+    range: `${tab}!A1`,
+    valueInputOption: "USER_ENTERED",
+    insertDataOption: "INSERT_ROWS",
+    requestBody: { values },
+  });
+}
+
 /** Cap nhat 1 dong da biet so thu tu dong that (rowNumber tra ve tu readTab). */
 export async function updateRow(
   tab: TabName,

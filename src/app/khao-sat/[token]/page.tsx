@@ -2,9 +2,10 @@ import {
   layDanhSachGiangVien,
   layDanhSachHocVien,
   layDanhSachKhoa,
-  timPhieuTheoMa,
+  timPhieuKhaoSatTheoToken,
 } from "@/lib/data";
 import SurveyForm from "./SurveyForm";
+import SurveyFormNhom from "./SurveyFormNhom";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,9 @@ export default async function KhaoSatPage({
 }) {
   const { token } = await params;
 
-  let phieu;
+  let ketQua;
   try {
-    phieu = await timPhieuTheoMa(token);
+    ketQua = await timPhieuKhaoSatTheoToken(token);
   } catch (err) {
     return (
       <ThongBao tieuDe="Loi he thong">
@@ -27,7 +28,7 @@ export default async function KhaoSatPage({
     );
   }
 
-  if (!phieu) {
+  if (!ketQua) {
     return (
       <ThongBao tieuDe="Khong tim thay khao sat">
         Duong dan khong hop le hoac da het han. Vui long lien he QTDT phu trach
@@ -36,7 +37,11 @@ export default async function KhaoSatPage({
     );
   }
 
-  if (phieu.row.TrangThai === "Da nop") {
+  const daNopHet =
+    ketQua.loai === "don"
+      ? ketQua.row.TrangThai === "Da nop"
+      : ketQua.danhSach.every((d) => d.row.TrangThai === "Da nop");
+  if (daNopHet) {
     return (
       <ThongBao tieuDe="Da hoan thanh">
         Ban da nop khao sat nay truoc do. Cam on ban!
@@ -51,9 +56,45 @@ export default async function KhaoSatPage({
       layDanhSachGiangVien(),
     ]);
 
-  const hocVien = hocViens.find((h) => h.MaHV === phieu.row.MaHV);
-  const khoa = khoas.find((k) => k.MaKhoa === phieu.row.MaKhoa);
-  const gv = giangViens.find((g) => g.MaGV === phieu.row.MaGV);
+  if (ketQua.loai === "don") {
+    const phieu = ketQua.row;
+    const hocVien = hocViens.find((h) => h.MaHV === phieu.MaHV);
+    const khoa = khoas.find((k) => k.MaKhoa === phieu.MaKhoa);
+    const gv = giangViens.find((g) => g.MaGV === phieu.MaGV);
+
+    return (
+      <main className="flex-1 p-6">
+        <div className="max-w-lg mx-auto mb-6 bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+          <h1 className="text-lg font-bold text-vnpt-blue mb-1">
+            Khao sat chat luong giang vien
+          </h1>
+          <p className="text-sm text-slate-600">
+            Hoc vien: <b>{hocVien?.HoTen ?? phieu.MaHV}</b>
+          </p>
+          <p className="text-sm text-slate-600">
+            Khoa hoc: <b>{khoa?.TenKhoa ?? phieu.MaKhoa}</b>
+          </p>
+          <p className="text-sm text-slate-600">
+            Giang vien danh gia: <b>{gv?.HoTen ?? phieu.MaGV}</b>
+          </p>
+          <p className="text-xs text-slate-400 mt-2">
+            Ket qua duoc bao mat, giang vien va QTDT chi xem duoc diem tong hop,
+            khong gan voi ten hoc vien.
+          </p>
+        </div>
+        <SurveyForm token={token} />
+      </main>
+    );
+  }
+
+  // loai === "nhom": khoa co nhieu giang vien, 1 link cham het cho tung GV
+  const phieuDauTien = ketQua.danhSach[0].row;
+  const hocVien = hocViens.find((h) => h.MaHV === phieuDauTien.MaHV);
+  const khoa = khoas.find((k) => k.MaKhoa === phieuDauTien.MaKhoa);
+  const danhSachGV = ketQua.danhSach.map((d) => ({
+    maGV: d.row.MaGV,
+    hoTen: giangViens.find((g) => g.MaGV === d.row.MaGV)?.HoTen ?? d.row.MaGV,
+  }));
 
   return (
     <main className="flex-1 p-6">
@@ -62,20 +103,21 @@ export default async function KhaoSatPage({
           Khao sat chat luong giang vien
         </h1>
         <p className="text-sm text-slate-600">
-          Hoc vien: <b>{hocVien?.HoTen ?? phieu.row.MaHV}</b>
+          Hoc vien: <b>{hocVien?.HoTen ?? phieuDauTien.MaHV}</b>
         </p>
         <p className="text-sm text-slate-600">
-          Khoa hoc: <b>{khoa?.TenKhoa ?? phieu.row.MaKhoa}</b>
+          Khoa hoc: <b>{khoa?.TenKhoa ?? phieuDauTien.MaKhoa}</b>
         </p>
         <p className="text-sm text-slate-600">
-          Giang vien danh gia: <b>{gv?.HoTen ?? phieu.row.MaGV}</b>
+          Khoa nay co <b>{danhSachGV.length} giang vien</b>, vui long danh gia
+          lan luot tung nguoi ben duoi.
         </p>
         <p className="text-xs text-slate-400 mt-2">
           Ket qua duoc bao mat, giang vien va QTDT chi xem duoc diem tong hop,
           khong gan voi ten hoc vien.
         </p>
       </div>
-      <SurveyForm token={token} />
+      <SurveyFormNhom token={token} danhSachGV={danhSachGV} />
     </main>
   );
 }

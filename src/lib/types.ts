@@ -53,6 +53,12 @@ export type PhieuKhaoSat = {
   MienNhap: string;
   /** Cau 11 - y kien dong gop tu do, khong bat buoc, ap dung ca 2 luong (ca nhan hoa + dung chung). */
   YKienKhac: string;
+  /**
+   * Ma nhom - cac phieu cung 1 hoc vien, cung 1 dot gui "khoa nhieu giang
+   * vien" se chia se cung 1 MaNhom, de gui chung 1 link/email danh gia het
+   * cac GV trong 1 lan. Rong neu la phieu don (1 GV, nhu truoc gio).
+   */
+  MaNhom: string;
 };
 
 export const CAU_HOI_KHAO_SAT: string[] = [

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import GuiNhieuGVForm from "./GuiNhieuGVForm";
 
 type Khoa = { MaKhoa: string; TenKhoa: string; LoaiLop: string };
 type GiangVien = { MaGV: string; HoTen: string; QTDT: string };
@@ -203,6 +204,19 @@ export default function GuiKhaoSatPage() {
         >
           {dangGui ? "Dang gui..." : "Gui khao sat"}
         </button>
+      </div>
+
+      <div className="space-y-3 max-w-xl">
+        <div>
+          <h2 className="font-semibold">Khoa co nhieu giang vien?</h2>
+          <p className="text-sm text-slate-600">
+            Danh cho khoa keo dai nhieu buoi, moi buoi 1 GV khac nhau day. Chon
+            het cac GV da day + ngay day tung nguoi, moi hoc vien chi nhan{" "}
+            <b>1 email/1 link duy nhat</b> de danh gia lan luot tat ca GV
+            trong 1 lan, thay vi nhan rieng tung email cho moi GV.
+          </p>
+        </div>
+        <GuiNhieuGVForm khoas={khoas} giangViens={giangViens} />
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3 max-w-xl">

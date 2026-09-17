@@ -44,12 +44,14 @@ dai khac nhau tuy y):
 
 **Tab `PhieuKhaoSat`** — de trong, he thong tu ghi. Chi can co dong header:
 ```
-MaPhieu	MaHV	MaKhoa	MaGV	NgayDay	NgayGui	NgayHoanThanh	Diem1	Diem2	Diem3	Diem4	Diem5	Diem6	Diem7	Diem8	Diem9	Diem10	DiemTB	TrangThai	HoTenNhap	DonViNhap	MienNhap	YKienKhac
+MaPhieu	MaHV	MaKhoa	MaGV	NgayDay	NgayGui	NgayHoanThanh	Diem1	Diem2	Diem3	Diem4	Diem5	Diem6	Diem7	Diem8	Diem9	Diem10	DiemTB	TrangThai	HoTenNhap	DonViNhap	MienNhap	YKienKhac	MaNhom
 ```
-4 cot cuoi (`HoTenNhap`, `DonViNhap`, `MienNhap`, `YKienKhac`) — 3 cot dau
-chi co gia tri khi nop qua "link dung chung" (khong co MaHV vi chua co danh
-sach hoc vien); `YKienKhac` la cau 11 (y kien dong gop tu do, khong bat
-buoc), ap dung cho ca 2 luong nop phieu.
+4 cot gan cuoi (`HoTenNhap`, `DonViNhap`, `MienNhap`, `YKienKhac`) — 3 cot
+dau chi co gia tri khi nop qua "link dung chung" (khong co MaHV vi chua co
+danh sach hoc vien); `YKienKhac` la cau 11 (y kien dong gop tu do, khong bat
+buoc), ap dung cho ca 2 luong nop phieu. Cot cuoi `MaNhom` chi co gia tri o
+luong "khoa nhieu giang vien" (xem muc 3) — cac dong cung 1 hoc vien, cung 1
+dot gui se chia se 1 MaNhom de dung chung 1 link.
 
 ### 1.2. Cap quyen doc/ghi Google Sheet cho ung dung
 
@@ -153,13 +155,29 @@ Mo http://localhost:3000 — trang chu co nut vao "Trang noi bo QTDT"
 - **`/admin/gui-khao-sat`**: QTDT chon khoa hoc + giang vien vua day xong +
   ngay day → bam "Gui khao sat" → he thong tao 1 phieu (chua nop) va 1 link
   rieng cho moi hoc vien trong danh sach khoa, gui email qua Resend.
+- **Khoa co nhieu giang vien** (cung trong `/admin/gui-khao-sat`): danh cho
+  khoa keo dai nhieu buoi, moi buoi 1 GV khac nhau day. Chon 1 khoa + nhieu
+  GV (kem ngay day rieng tung nguoi) → moi hoc vien chi nhan **1 email/1
+  link duy nhat**, mo ra thay lan luot tung khoi 10 cau cho tung GV, nop 1
+  lan la xong het — thay vi phai nhan va lam rieng tung email cho moi GV.
+  Ben trong van tao 1 dong `PhieuKhaoSat` rieng cho moi cap (hoc vien, GV)
+  nhu cu (dung chung `MaNhom`), nen KPI/thong ke theo GV khong doi cach
+  tinh.
+- **`/admin/hoc-vien`**: xem + tim kiem danh sach hoc vien, va **upload file
+  CSV** de them hang loat hoc vien moi (thay vi phai go tay tung dong trong
+  Google Sheet). Dong trung email voi hoc vien da co se tu dong bo qua,
+  `MaHV` de trong se duoc he thong tu sinh so.
 - **`/admin/thong-ke`**: xem theo tung dot da gui — so hoc vien da nop /
   tong so, danh sach chua nop, nut "Gui nhac lai".
 - **`/admin/kpi`**: bang KPI theo GV va theo QTDT (loc theo thang), cong
   thuc: `so phieu diem trung binh > 8 / tong so phieu da nop trong ky`,
   dat KPI khi ty le ≥ 96%.
-- **`/khao-sat/[ma-phieu]`**: trang khao sat cong khai, hoc vien nhan qua
-  email, moi link chi dung duoc 1 lan.
+- **`/khao-sat/[token]`**: trang khao sat cong khai, hoc vien nhan qua
+  email, moi link chi dung duoc 1 lan. `token` co the la `MaPhieu` (1 GV)
+  hoac `MaNhom` (nhieu GV, xem muc "Khoa co nhieu giang vien" o tren).
+- **`/lay-link`**: trang cong khai (khong can dang nhap) de giang vien tu
+  lay link "khao sat dung chung" cho khoa chua co danh sach hoc vien, gui
+  qua Zalo/Telegram.
 
 ## 4. Deploy len Vercel
 

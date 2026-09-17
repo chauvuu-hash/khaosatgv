@@ -45,6 +45,20 @@ export default function KpiPage() {
           GV/QTDT/CV QTHT khong day (khong co phieu) trong thang dang loc thi
           tinh thang do la <b>100%</b> (khong bi tru KPI).
         </p>
+        <p className="text-xs text-slate-400">
+          Bang duoi day chi tinh tu phieu nop qua he thong nay (tu thang
+          9/2026). Du lieu doi chieu T1–T9/2026 tu file Excel cu (chua nhap
+          vao Google Sheet dang chay) xem o{" "}
+          <a
+            href="https://claude.ai/artifact/LRzH1W5Fn4kDM9qtAeW67d"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-vnpt-blue underline"
+          >
+            Bao cao KPI 6 thang
+          </a>
+          .
+        </p>
       </div>
 
       <div className="flex items-center gap-3 text-sm">

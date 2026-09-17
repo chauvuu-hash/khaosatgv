@@ -1,20 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { CAU_HOI_KHAO_SAT } from "@/lib/types";
+import { CAU_HOI_KHAO_SAT, CAU_Y_KIEN_KHAC } from "@/lib/types";
 
 export default function KhoaChungForm({
   maKhoa,
   maGV,
   ngayDay,
+  donVis,
+  miens,
 }: {
   maKhoa: string;
   maGV: string;
   ngayDay: string;
+  donVis: string[];
+  miens: string[];
 }) {
   const [hoTen, setHoTen] = useState("");
   const [donVi, setDonVi] = useState("");
+  const [mien, setMien] = useState("");
   const [diem, setDiem] = useState<number[]>(Array(10).fill(0));
+  const [yKienKhac, setYKienKhac] = useState("");
   const [dangGui, setDangGui] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
   const [xong, setXong] = useState(false);
@@ -38,7 +44,7 @@ export default function KhoaChungForm({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hoTen, donVi, diem }),
+          body: JSON.stringify({ hoTen, donVi, mien, diem, yKienKhac }),
         }
       );
       const data = await res.json();
@@ -75,18 +81,39 @@ export default function KhoaChungForm({
             value={hoTen}
             onChange={(e) => setHoTen(e.target.value)}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-            placeholder="Nguyen Van A"
+            placeholder="Nguyễn Văn A"
           />
+          <p className="text-xs text-slate-400 mt-1">Ghi day du ho ten co dau, vi du: Nguyễn Văn A</p>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Don vi (khong bat buoc)</label>
-          <input
-            type="text"
+          <select
             value={donVi}
             onChange={(e) => setDonVi(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-            placeholder="VD: Dai Ha Noi"
-          />
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+          >
+            <option value="">-- Chon don vi --</option>
+            {donVis.map((dv) => (
+              <option key={dv} value={dv}>
+                {dv}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Mien (khong bat buoc)</label>
+          <select
+            value={mien}
+            onChange={(e) => setMien(e.target.value)}
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+          >
+            <option value="">-- Chon mien --</option>
+            {miens.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -115,6 +142,19 @@ export default function KhoaChungForm({
           </div>
         </div>
       ))}
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <p className="text-sm font-medium mb-3">
+          11. {CAU_Y_KIEN_KHAC} (khong bat buoc)
+        </p>
+        <textarea
+          value={yKienKhac}
+          onChange={(e) => setYKienKhac(e.target.value)}
+          rows={3}
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+          placeholder="Gop y them cho giang vien / khoa hoc (neu co)..."
+        />
+      </div>
 
       {loi && <p className="text-vnpt-red text-sm font-medium text-center">{loi}</p>}
 

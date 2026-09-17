@@ -10,6 +10,12 @@ export type Khoa = {
   LoaiLop: string;
 };
 
+/** Danh sach Don vi / Mien de xo thu muc chon (tab DonVi), thay vi ho tu go. */
+export type DonViMienList = {
+  donVis: string[];
+  miens: string[];
+};
+
 export type HocVien = {
   MaHV: string;
   HoTen: string;
@@ -44,6 +50,9 @@ export type PhieuKhaoSat = {
   /** Chi dung khi nop qua link dung chung (khong co MaHV vi chua co danh sach hoc vien). */
   HoTenNhap: string;
   DonViNhap: string;
+  MienNhap: string;
+  /** Cau 11 - y kien dong gop tu do, khong bat buoc, ap dung ca 2 luong (ca nhan hoa + dung chung). */
+  YKienKhac: string;
 };
 
 export const CAU_HOI_KHAO_SAT: string[] = [
@@ -58,3 +67,6 @@ export const CAU_HOI_KHAO_SAT: string[] = [
   "Khuyến khích trao đổi, tương tác",
   "Công cụ hỗ trợ học tập được sử dụng",
 ];
+
+/** Cau 11 - rieng, khong cham diem 1-10 nhu 10 cau tren ma la o nhap tu do. */
+export const CAU_Y_KIEN_KHAC = "Ý kiến đóng góp khác";

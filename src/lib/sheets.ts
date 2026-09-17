@@ -6,6 +6,7 @@ const TABS = {
   Khoa: "Khoa",
   HocVien: "HocVien",
   PhieuKhaoSat: "PhieuKhaoSat",
+  DonVi: "DonVi",
 } as const;
 
 type TabName = (typeof TABS)[keyof typeof TABS];
@@ -108,6 +109,20 @@ export async function readTab<T extends Record<string, string>>(
     rowNumbers.push(i + 1);
   }
   return { headers, rows, rowNumbers };
+}
+
+/**
+ * Doc tho 1 vung o (khong gan header/object) - dung cho tab co cau truc khac
+ * dang "1 dong = 1 ban ghi", vd tab DonVi co 2 danh sach doc lap dat canh
+ * nhau theo cot (cot DonVi va cot Mien khong cung hang voi nhau).
+ */
+export async function readValues(range: string): Promise<string[][]> {
+  const sheets = getClient();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSheetId(),
+    range,
+  });
+  return (res.data.values ?? []) as string[][];
 }
 
 /** Them 1 dong moi vao cuoi tab, theo dung thu tu cot cua header hien co. */

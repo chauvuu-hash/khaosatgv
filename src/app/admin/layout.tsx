@@ -20,6 +20,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin/kpi" className="hover:underline">
               KPI
             </Link>
+            <a
+              href="https://claude.ai/artifact/LRzH1W5Fn4kDM9qtAeW67d"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Báo cáo KPI 6 tháng
+            </a>
             <LogoutButton />
           </nav>
         </div>

@@ -1,0 +1,388 @@
+<title>KPI Giảng viên 6 tháng</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#F0F8FE; --surface:#FFFFFF; --surface-2:#E4F0FB; --surface-3:#D8E9F8;
+  --border:#CFE2F3; --ink:#0B2136; --ink-muted:#4C6478; --ink-faint:#7C93A5;
+  --accent:#0056A9; --accent-ink:#FFFFFF; --accent-soft:#E4F0FB;
+  --good:#0CA30C; --good-bg:#E4F6E1; --good-ink:#0A6E0A;
+  --critical:#CF1A21; --critical-bg:#FBE6E5; --critical-ink:#A3151A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#071B2C; --surface:#0F2A3D; --surface-2:#163B54; --surface-3:#1D4A67;
+    --border:#204A67; --ink:#EAF3FB; --ink-muted:#9FBBD1; --ink-faint:#6E8DA3;
+    --accent:#6BAEEA; --accent-ink:#06172A; --accent-soft:#163B54;
+    --good:#3FCB57; --good-bg:#0F3A22; --good-ink:#7CE895;
+    --critical:#FF6B66; --critical-bg:#3D1518; --critical-ink:#FFB4B0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#071B2C; --surface:#0F2A3D; --surface-2:#163B54; --surface-3:#1D4A67;
+  --border:#204A67; --ink:#EAF3FB; --ink-muted:#9FBBD1; --ink-faint:#6E8DA3;
+  --accent:#6BAEEA; --accent-ink:#06172A; --accent-soft:#163B54;
+  --good:#3FCB57; --good-bg:#0F3A22; --good-ink:#7CE895;
+  --critical:#FF6B66; --critical-bg:#3D1518; --critical-ink:#FFB4B0;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  padding-inline:20px; padding-block:36px 64px;
+}
+h1,h2,h3{font-family:'Be Vietnam Pro',system-ui,sans-serif; text-wrap:balance; margin:0}
+.wrap{max-width:880px; margin:0 auto; display:flex; flex-direction:column; gap:36px}
+
+/* masthead */
+.masthead{border-bottom:2px solid var(--border); padding-bottom:20px; display:flex; flex-direction:column; gap:6px}
+.eyebrow{font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent)}
+h1{font-size:clamp(24px,4vw,32px); font-weight:800; color:var(--ink)}
+.meta{font-size:13.5px; color:var(--ink-muted); line-height:1.6; max-width:68ch}
+.meta b{color:var(--ink); font-weight:600}
+
+/* status banner */
+.banner{border-radius:16px; padding:20px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.banner.good{background:var(--good-bg); border:1px solid color-mix(in srgb, var(--good) 35%, transparent)}
+.banner-icon{width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0}
+.banner.good .banner-icon{background:var(--good); color:var(--good-bg)}
+.banner-icon svg{width:20px; height:20px}
+.banner-text{flex:1; min-width:220px}
+.banner-text .h{font-family:'Be Vietnam Pro'; font-weight:700; font-size:15.5px; color:var(--good-ink); margin-bottom:2px}
+.banner-text p{margin:0; font-size:13.5px; color:var(--ink-muted); line-height:1.6}
+
+/* stat tiles */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px}
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; display:flex; flex-direction:column; gap:4px}
+.tile .num{font-family:'Be Vietnam Pro'; font-size:26px; font-weight:800; font-variant-numeric:tabular-nums}
+.tile .lbl{font-size:12.5px; color:var(--ink-muted); font-weight:500}
+.tile.accent{background:var(--accent)}
+.tile.accent .num, .tile.accent .lbl{color:var(--accent-ink)}
+
+/* section heading */
+.section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.section-head h2{font-size:18px; font-weight:700}
+.section-head .hint{font-size:12.5px; color:var(--ink-faint)}
+
+/* role cards */
+.roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.role-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; gap:10px}
+.role-card .who{font-size:13px; color:var(--ink-muted); font-weight:500}
+.role-card .name{font-family:'Be Vietnam Pro'; font-weight:700; font-size:16px}
+.role-card .pct-row{display:flex; align-items:baseline; gap:8px}
+.role-card .pct{font-family:'Be Vietnam Pro'; font-size:30px; font-weight:800; font-variant-numeric:tabular-nums}
+.role-card .frac{font-size:12.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums}
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px; width:fit-content}
+.badge.good{background:var(--good-bg); color:var(--good-ink)}
+.badge.critical{background:var(--critical-bg); color:var(--critical-ink)}
+.badge svg{width:11px; height:11px}
+
+/* table */
+.table-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px}
+thead th{
+  text-align:left; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--ink-faint); padding:10px 14px; border-bottom:1px solid var(--border);
+}
+thead th.num, td.num, thead th.center, td.center{text-align:center}
+tbody tr.gv-row td{padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle}
+tbody tr.gv-row:last-child td{border-bottom:none}
+tbody tr.group-row td{
+  padding:8px 14px 4px; font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--accent); background:var(--surface-2); border-bottom:1px solid var(--border);
+}
+.gv-name{font-weight:600}
+.period-cell{display:flex; flex-direction:column; gap:2px; font-variant-numeric:tabular-nums}
+.period-cell .p{font-weight:600}
+.period-cell .n{font-size:11px; color:var(--ink-faint)}
+.spark{display:block}
+.spark path.line{fill:none; stroke:var(--accent); stroke-width:1.6}
+.spark circle{fill:var(--accent)}
+.spark circle.end{fill:var(--accent); stroke:var(--surface); stroke-width:1.5}
+
+/* footnote */
+.notes{background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; font-size:13px; color:var(--ink-muted); line-height:1.75}
+.notes h3{font-size:13.5px; color:var(--ink); margin-bottom:8px; font-weight:700}
+.notes ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
+.notes code{background:var(--surface-3); padding:1px 5px; border-radius:4px; font-size:12px}
+
+/* khuyen nghi */
+.month-label{font-family:'Be Vietnam Pro'; font-size:12.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); margin:14px 0 -2px}
+.month-label:first-child{margin-top:2px}
+.reco-list{display:flex; flex-direction:column; gap:10px}
+.reco{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 20px; display:flex; flex-direction:column; gap:6px}
+.reco .head{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.reco .name{font-family:'Be Vietnam Pro'; font-weight:700; font-size:15px}
+.reco .tag{font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--critical-bg); color:var(--critical-ink)}
+.reco .tag.org{background:var(--accent-soft); color:var(--accent)}
+.reco .tag.watch{background:var(--surface-3); color:var(--ink-muted)}
+.reco p{margin:0; font-size:13.5px; color:var(--ink-muted); line-height:1.65}
+.reco .quote{font-size:12.5px; font-style:italic; color:var(--ink-faint); border-left:2px solid var(--border); padding-left:10px; margin-top:2px}
+
+@media (max-width:560px){
+  thead th:nth-child(4), td:nth-child(4){display:none}
+}
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">P.NVĐT · Đối chiếu số liệu tháng 9/2026</div>
+    <h1>KPI Giảng viên — dữ liệu thật T1–T9/2026</h1>
+    <p class="meta">Tính từ toàn bộ phiếu khảo sát thật trong tab <b>Form Responses 1</b> (file "2026 KQ Phiếu khảo sát sau đào tạo.xlsx", đã tách các phiếu ghi nhiều GV/1 phiếu thành 1 GV/phiếu). Công thức: KPI = số phiếu điểm trung bình 10 câu <b>≥ 8</b> / tổng số phiếu đã nộp trong kỳ — ngưỡng <b>≥90%</b> cho T1–T7/2026, <b>≥96%</b> từ T8/2026.</p>
+  </div>
+
+  <div class="banner good">
+    <div class="banner-icon">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="banner-text">
+      <div class="h">Tất cả 11 giảng viên, cả 2 QTĐT và CV QTHT đều đang đạt KPI — cả 2 giai đoạn</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-head"><h2>KPI theo Quản trị đào tạo &amp; CV QTHT</h2></div>
+    <div class="roles" style="margin-top:12px">
+
+      <div class="role-card">
+        <div class="who">QTĐT phụ trách 5 GV · T1–T7 (≥90%)</div>
+        <div class="name">Nguyễn Thị Hồng Phúc</div>
+        <div class="pct-row"><span class="pct">99,2%</span><span class="frac">1.087 / 1.096 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+      <div class="role-card">
+        <div class="who">QTĐT phụ trách 6 GV · T1–T7 (≥90%)</div>
+        <div class="name">Vưu Hồng Châu</div>
+        <div class="pct-row"><span class="pct">98,0%</span><span class="frac">890 / 908 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+      <div class="role-card">
+        <div class="who">CV QTHT · gộp 11 GV · T1–T7 (≥90%)</div>
+        <div class="name">Ngô Lý Thùy Nhi</div>
+        <div class="pct-row"><span class="pct">98,65%</span><span class="frac">1.977 / 2.004 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+      <div class="role-card">
+        <div class="who">QTĐT phụ trách 5 GV · T8–T9 (≥96%)</div>
+        <div class="name">Nguyễn Thị Hồng Phúc</div>
+        <div class="pct-row"><span class="pct">99,1%</span><span class="frac">216 / 218 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+      <div class="role-card">
+        <div class="who">QTĐT phụ trách 6 GV · T8–T9 (≥96%)</div>
+        <div class="name">Vưu Hồng Châu</div>
+        <div class="pct-row"><span class="pct">100,0%</span><span class="frac">89 / 89 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+      <div class="role-card">
+        <div class="who">CV QTHT · gộp 11 GV · T8–T9 (≥96%)</div>
+        <div class="name">Ngô Lý Thùy Nhi</div>
+        <div class="pct-row"><span class="pct">99,35%</span><span class="frac">305 / 307 phiếu</span></div>
+        <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt KPI</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div>
+    <div class="section-head">
+      <h2>KPI theo giảng viên — 2 giai đoạn</h2>
+      <span class="hint">Xu hướng 9 tháng (T1→T9, tháng không dạy tính 100%)</span>
+    </div>
+    <div class="table-card" style="margin-top:12px">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Giảng viên</th>
+            <th class="center">T1–T7<br/>(≥90%)</th>
+            <th class="center">T8–T9<br/>(≥96%)</th>
+            <th>Xu hướng</th>
+            <th class="center">KPI</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-head">
+      <h2>Khuyến nghị điều chỉnh — theo từng tháng</h2>
+      <span class="hint">Tách theo tháng phát sinh thật (Timestamp trong "Form Responses 1"), thay vì gộp chung cả giai đoạn — dùng làm nhịp xem xét định kỳ hàng tháng, áp dụng từ T8/2026</span>
+    </div>
+    <div class="reco-list" style="margin-top:12px">
+
+      <div class="reco">
+        <div class="head"><span class="name">Toàn đơn vị</span><span class="tag org">Chung — cả giai đoạn</span></div>
+        <p>Trong 10 tiêu chí, <b>"Hướng dẫn xử lý tình huống thực tế"</b> là câu điểm thấp nhất ở hầu hết giảng viên (dù vẫn rất cao, ~9,6–9,9/10) suốt cả giai đoạn T1–T9, không riêng tháng nào. Khuyến nghị P.NVĐT bổ sung thêm case study/tình huống thực tế vào tài liệu đào tạo chung.</p>
+      </div>
+
+      <div class="month-label">Tháng 2/2026</div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Đỗ Như Thụy</span><span class="tag org">Gợi ý hay, nên áp dụng</span></div>
+        <p>1 góp ý xây dựng đáng chú ý: bổ sung phân tích chi tiết lỗi bị trừ điểm trong đánh giá cuộc gọi (Emas/KHL) và hướng khắc phục cụ thể cho ĐTV — khuyến nghị đưa vào tài liệu tham khảo chung.</p>
+        <div class="quote">"...có thêm phân tích cuộc Emas đánh giá KHL, VD: cuộc này Emas trừ điểm ở tiêu chí nào... và bạn ĐTV ấy cần bổ sung câu nói hoặc hành động nào để tránh bị trừ điểm lỗi đấy." — Từ Thị Mai Hương, 26/2, 10đ</div>
+      </div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Võ Thị Minh Tâm</span><span class="tag watch">Theo dõi</span></div>
+        <p>3/66 phiếu trong tháng dưới 8đ (95,5%), không có góp ý chữ đi kèm nên chưa rõ nguyên nhân cụ thể — QTĐT nên hỏi trực tiếp học viên ở lớp kế tiếp nếu lặp lại.</p>
+      </div>
+
+      <div class="month-label">Tháng 4/2026</div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Vũ Thị Huệ</span><span class="tag">Điều chỉnh nội dung</span></div>
+        <p>3/193 phiếu dưới 8đ + 1 góp ý cụ thể: nội dung đào tạo chưa sát với tình huống thực tế khi trả lời khách hàng.</p>
+        <div class="quote">"Nội dung chưa sát nhiều với thực tế để ktv trả lời kh." — Đỗ Thị Hải Nhân, 9,8đ</div>
+      </div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Đoàn Thị Mỹ Hạnh</span><span class="tag">Điều chỉnh nội dung</span></div>
+        <p>5/173 phiếu dưới 8đ (97,1%) + 1 góp ý cụ thể: cần hướng dẫn giải đáp chi tiết hơn cho các trường hợp đặc biệt.</p>
+        <div class="quote">"...tuy nhiên vài trường hợp đặc biệt cần anh/chị hướng dẫn giải đáp cụ thể hơn để ĐTV có thể giải đáp KH tốt hơn" — Phạm Ngân Hà, 9,5đ</div>
+      </div>
+
+      <div class="month-label">Tháng 5/2026</div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Võ An Thanh</span><span class="tag">Phong cách giảng dạy</span></div>
+        <p>Tháng đáng chú ý nhất trong 9 tháng: 7/108 phiếu dưới 8đ, tỷ lệ đạt tụt còn <b>93,5%</b> (vẫn trên ngưỡng 90% của giai đoạn T1–T7, nhưng là mức thấp nhất toàn kỳ). Có góp ý về âm lượng khi giảng — nên tăng âm lượng/dùng mic.</p>
+        <div class="quote">"hôm nay thầy nói hơi nhỏ" — Trà Thị Thanh Nga, 13/5</div>
+      </div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Võ Thị Minh Nguyệt</span><span class="tag watch">Theo dõi</span></div>
+        <p>3/85 phiếu trong tháng dưới 8đ (96,5%), không có góp ý chữ đi kèm.</p>
+      </div>
+
+      <div class="month-label">Tháng 6/2026</div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Võ Thị Minh Nguyệt &amp; Võ An Thanh</span><span class="tag">Điều chỉnh nội dung</span></div>
+        <p>Buổi dạy chung — mỗi người nhận cùng 2 góp ý giống hệt nhau từ 2 học viên khác nhau: cần điều chỉnh nội dung bài giảng theo hướng thực tế hơn (tập trung tính năng sản phẩm, chính sách gói cước, so sánh với sản phẩm ngoài VNPT), và đẩy nhanh tiến độ bài giảng hơn.</p>
+        <div class="quote">"Cần điều chỉnh về nội dung bài giảng, tập trung vào tính năng sản phẩm, chính sách gói cước, so sánh sản phẩm với sản phẩm ngoài thị trường..." — Lê Thị Hương Thảo, 2/6, 7,5đ · "Mình muốn đẩy nhanh tiến độ bài giảng hơn" — Nguyễn Thị Lan Anh, 2/6</div>
+      </div>
+
+      <div class="month-label">Tháng 8/2026 <span style="text-transform:none; font-weight:500; color:var(--ink-faint)">— ngưỡng KPI đã thắt chặt lên ≥96%</span></div>
+
+      <div class="reco">
+        <div class="head"><span class="name">Vũ Thị Huệ</span><span class="tag watch">Theo dõi sát ngưỡng mới</span></div>
+        <p>2/56 phiếu dưới 8đ, tỷ lệ đạt <b>96,4%</b> — vẫn qua ngưỡng mới ≥96% nhưng rất sát, không có góp ý chữ đi kèm để biết nguyên nhân. Đây là kiểu dip mà ngưỡng cũ ≥90% sẽ bỏ qua nhưng ngưỡng mới cần theo dõi ngay trong tháng thay vì đợi tổng kết cả giai đoạn.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Ghi chú về dữ liệu</h3>
+    <ul>
+      <li>Chỉ nguồn duy nhất: <b>Form Responses 1</b>, bao trùm đủ T1–T9/2026.</li>
+      <li>Ngưỡng KPI theo quy định: <b>≥90%</b> cho T1–T7/2026, <b>≥96%</b> từ T8/2026. Cả 2 giai đoạn, tất cả GV/QTĐT/CV QTHT đều đạt.</li>
+      <li>Xu hướng theo tháng: giảng viên không có phiếu trong 1 tháng (không dạy tháng đó) được tính là <b>100%</b> tháng đó, không bị trừ điểm.</li>
+      <li>Chưa gán được <code>Mã khóa</code> cho dữ liệu cũ (chỉ có tên khóa tự do) — chuẩn mã khóa chỉ áp dụng từ các khóa tháng 9/2026 trở đi theo hệ thống mới.</li>
+      <li><b>Khuyến nghị điều chỉnh</b> nay tách theo tháng phát sinh thật (dựa trên Timestamp trong "Form Responses 1"), thay vì gộp chung 1 lượt cho cả giai đoạn như 2 bản trước — quy trình xem xét theo tháng này áp dụng từ <b>T8/2026</b> trở đi, vì ngưỡng KPI đã thắt chặt lên ≥96% nên cần phát hiện sớm các đợt tụt điểm nhỏ trong từng tháng (vd. T8/2026 của Vũ Thị Huệ chỉ đạt 96,4%, rất sát ngưỡng) thay vì đợi tổng kết cuối kỳ mới phát hiện.</li>
+      <li>Báo cáo này chỉ để đối chiếu — <b>không ghi vào Google Sheet</b> đang vận hành hệ thống khảo sát sống của tháng 9.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+const DATA = [
+  {qtdt:"Nguyễn Thị Hồng Phúc", name:"Vũ Thị Huệ",
+   t1:{tong:336,dat:333,tyle:99.1}, t2:{tong:65,dat:63,tyle:96.9},
+   thang:[100.0,100.0,100.0,98.4,100.0,100.0,100.0,96.4,100.0]},
+  {qtdt:"Nguyễn Thị Hồng Phúc", name:"Đoàn Thị Mỹ Hạnh",
+   t1:{tong:252,dat:247,tyle:98.0}, t2:{tong:76,dat:76,tyle:100.0},
+   thang:[100.0,100.0,100.0,97.1,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Nguyễn Thị Hồng Phúc", name:"Hà Thị Hoàng Hạnh",
+   t1:{tong:98,dat:98,tyle:100.0}, t2:{tong:11,dat:11,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Nguyễn Thị Hồng Phúc", name:"Nguyễn Lê Hoàng Lan",
+   t1:{tong:177,dat:177,tyle:100.0}, t2:{tong:26,dat:26,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Nguyễn Thị Hồng Phúc", name:"Nguyễn Thị Trúc Linh",
+   t1:{tong:233,dat:232,tyle:99.6}, t2:{tong:40,dat:40,tyle:100.0},
+   thang:[100.0,99.4,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Võ Thị Minh Nguyệt",
+   t1:{tong:180,dat:176,tyle:97.8}, t2:{tong:20,dat:20,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,96.5,98.5,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Đỗ Như Thụy",
+   t1:{tong:124,dat:123,tyle:99.2}, t2:{tong:33,dat:33,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,98.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Võ An Thanh",
+   t1:{tong:224,dat:216,tyle:96.4}, t2:{tong:6,dat:6,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,93.5,98.7,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Nguyễn Thị Thanh Mai",
+   t1:{tong:112,dat:110,tyle:98.2}, t2:{tong:7,dat:7,tyle:100.0},
+   thang:[100.0,96.7,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Võ Thị Minh Tâm",
+   t1:{tong:163,dat:160,tyle:98.2}, t2:{tong:13,dat:13,tyle:100.0},
+   thang:[100.0,95.5,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  {qtdt:"Vưu Hồng Châu", name:"Phan Thị Thơ",
+   t1:{tong:105,dat:105,tyle:100.0}, t2:{tong:10,dat:10,tyle:100.0},
+   thang:[100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+];
+
+const fmt = n => n.toLocaleString('vi-VN');
+
+function sparkline(vals){
+  const w=88,h=24,pad=3;
+  const x = i => pad + (i/(vals.length-1))*(w-2*pad);
+  const minV = Math.min(90, Math.min(...vals));
+  const y = v => h-pad - ((v-minV)/(100-minV||1))*(h-2*pad);
+  let d = '';
+  vals.forEach((v,i)=>{ d += `${i===0?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)} `; });
+  let dots = '';
+  vals.forEach((v,i)=>{
+    const isLast = i===vals.length-1;
+    dots += `<circle class="${isLast?'end':''}" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${isLast?2.2:1.4}"/>`;
+  });
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path class="line" d="${d.trim()}"/>${dots}</svg>`;
+}
+
+const tbody = document.getElementById('tbody');
+let curQtdt = null;
+for(const row of DATA){
+  if(row.qtdt !== curQtdt){
+    curQtdt = row.qtdt;
+    const tr = document.createElement('tr');
+    tr.className = 'group-row';
+    tr.innerHTML = `<td colspan="5">QTĐT ${curQtdt}</td>`;
+    tbody.appendChild(tr);
+  }
+  const tr = document.createElement('tr');
+  tr.className = 'gv-row';
+  tr.innerHTML = `
+    <td class="gv-name">${row.name}</td>
+    <td class="center">
+      <div class="period-cell">
+        <span class="p">${row.t1.tyle.toFixed(1)}%</span>
+        <span class="n">${fmt(row.t1.dat)}/${fmt(row.t1.tong)}</span>
+      </div>
+    </td>
+    <td class="center">
+      <div class="period-cell">
+        <span class="p">${row.t2.tyle.toFixed(1)}%</span>
+        <span class="n">${fmt(row.t2.dat)}/${fmt(row.t2.tong)}</span>
+      </div>
+    </td>
+    <td>${sparkline(row.thang)}</td>
+    <td class="center">
+      <span class="badge good"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Đạt</span>
+    </td>`;
+  tbody.appendChild(tr);
+}
+</script>

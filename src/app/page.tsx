@@ -11,12 +11,20 @@ export default function Home() {
           Cong cu tam thoi (thang 9/2026) cho P.NVDT - dung song song voi he
           thong chinh thuc do P.CN xay dung.
         </p>
-        <Link
-          href="/admin"
-          className="inline-block bg-vnpt-blue text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90"
-        >
-          Vao trang noi bo QTDT
-        </Link>
+        <div className="flex flex-col items-center gap-3">
+          <Link
+            href="/admin"
+            className="inline-block bg-vnpt-blue text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90"
+          >
+            Vao trang noi bo QTDT
+          </Link>
+          <Link
+            href="/lay-link"
+            className="inline-block text-vnpt-blue text-sm font-medium hover:underline"
+          >
+            Giang vien tu lay link khao sat (khong can dang nhap)
+          </Link>
+        </div>
       </div>
     </main>
   );

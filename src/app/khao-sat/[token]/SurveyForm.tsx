@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CAU_HOI_KHAO_SAT } from "@/lib/types";
+import { CAU_HOI_KHAO_SAT, CAU_Y_KIEN_KHAC } from "@/lib/types";
 
 export default function SurveyForm({ token }: { token: string }) {
   const [diem, setDiem] = useState<number[]>(Array(10).fill(0));
+  const [yKienKhac, setYKienKhac] = useState("");
   const [dangGui, setDangGui] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
   const [xong, setXong] = useState(false);
@@ -22,7 +23,7 @@ export default function SurveyForm({ token }: { token: string }) {
       const res = await fetch(`/api/khao-sat/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ diem }),
+        body: JSON.stringify({ diem, yKienKhac }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -77,6 +78,19 @@ export default function SurveyForm({ token }: { token: string }) {
           </div>
         </div>
       ))}
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <p className="text-sm font-medium mb-3">
+          11. {CAU_Y_KIEN_KHAC} (khong bat buoc)
+        </p>
+        <textarea
+          value={yKienKhac}
+          onChange={(e) => setYKienKhac(e.target.value)}
+          rows={3}
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+          placeholder="Gop y them cho giang vien / khoa hoc (neu co)..."
+        />
+      </div>
 
       {loi && (
         <p className="text-vnpt-red text-sm font-medium text-center">{loi}</p>

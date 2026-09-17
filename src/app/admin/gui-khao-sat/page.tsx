@@ -106,7 +106,7 @@ export default function GuiKhaoSatPage() {
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4 max-w-xl">
         <div>
-          <label className="block text-sm font-medium mb-1">Khoa hoc</label>
+          <label className="block text-sm font-medium mb-1">Ma khoa</label>
           <select
             value={maKhoa}
             onChange={(e) => {
@@ -116,10 +116,10 @@ export default function GuiKhaoSatPage() {
             }}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">-- Chon khoa hoc --</option>
+            <option value="">-- Chon ma khoa --</option>
             {khoas.map((k) => (
               <option key={k.MaKhoa} value={k.MaKhoa}>
-                {k.TenKhoa} ({k.MaKhoa})
+                {k.MaKhoa}
               </option>
             ))}
           </select>

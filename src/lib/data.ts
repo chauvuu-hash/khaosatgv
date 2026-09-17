@@ -1,5 +1,5 @@
-import { appendRow, appendRows, readTab, TABS, updateRow } from "./sheets";
-import type { GiangVien, HocVien, Khoa, PhieuKhaoSat } from "./types";
+import { appendRow, appendRows, readTab, readValues, TABS, updateRow } from "./sheets";
+import type { DonViMienList, GiangVien, HocVien, Khoa, PhieuKhaoSat } from "./types";
 
 export async function layDanhSachGiangVien() {
   return readTab<GiangVien>(TABS.GiangVien);
@@ -11,6 +11,22 @@ export async function layDanhSachKhoa() {
 
 export async function layDanhSachHocVien() {
   return readTab<HocVien>(TABS.HocVien);
+}
+
+/**
+ * Tab DonVi co 2 danh sach doc lap nam canh nhau: cot B = Don vi, cot C =
+ * Mien (khac do dai, khong doi 1-1 theo hang) - dung cho o xo thu muc chon
+ * o form khao sat dung chung, thay vi de hoc vien tu go.
+ */
+export async function layDanhSachDonViMien(): Promise<DonViMienList> {
+  const values = await readValues(`${TABS.DonVi}!B2:C1000`);
+  const donVis: string[] = [];
+  const miens: string[] = [];
+  for (const row of values) {
+    if (row[0]) donVis.push(row[0]);
+    if (row[1]) miens.push(row[1]);
+  }
+  return { donVis, miens };
 }
 
 export async function layDanhSachPhieu() {
@@ -53,6 +69,8 @@ export async function taoDotGuiKhaoSat(params: {
     TrangThai: "Chua nop",
     HoTenNhap: "",
     DonViNhap: "",
+    MienNhap: "",
+    YKienKhac: "",
   }));
   await appendRows(TABS.PhieuKhaoSat, phieus as unknown as Record<string, string>[]);
   return phieus;
@@ -70,7 +88,9 @@ export async function taoPhieuDungChung(params: {
   ngayDay: string;
   hoTen: string;
   donVi: string;
+  mien: string;
   diem: number[];
+  yKienKhac: string;
 }): Promise<PhieuKhaoSat> {
   const now = new Date().toISOString();
   const diemTB = params.diem.reduce((a, b) => a + b, 0) / params.diem.length;
@@ -96,6 +116,8 @@ export async function taoPhieuDungChung(params: {
     TrangThai: "Da nop",
     HoTenNhap: params.hoTen,
     DonViNhap: params.donVi,
+    MienNhap: params.mien,
+    YKienKhac: params.yKienKhac,
   };
   await appendRow(TABS.PhieuKhaoSat, phieu as unknown as Record<string, string>);
   return phieu;
@@ -103,7 +125,8 @@ export async function taoPhieuDungChung(params: {
 
 export async function ghiKetQuaPhieu(
   maPhieu: string,
-  diem: number[]
+  diem: number[],
+  yKienKhac: string
 ): Promise<PhieuKhaoSat | null | "DA_NOP"> {
   const found = await timPhieuTheoMa(maPhieu);
   if (!found) return null;
@@ -124,6 +147,7 @@ export async function ghiKetQuaPhieu(
     DiemTB: diemTB.toFixed(2),
     NgayHoanThanh: new Date().toISOString(),
     TrangThai: "Da nop",
+    YKienKhac: yKienKhac,
   };
   await updateRow(
     TABS.PhieuKhaoSat,

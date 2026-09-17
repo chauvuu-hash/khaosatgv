@@ -8,6 +8,7 @@ export async function POST(
   const { token } = await params;
   const body = await req.json().catch(() => null);
   const diem = body?.diem;
+  const yKienKhac = typeof body?.yKienKhac === "string" ? body.yKienKhac.trim() : "";
 
   if (!Array.isArray(diem) || diem.length !== 10) {
     return NextResponse.json(
@@ -23,7 +24,7 @@ export async function POST(
     );
   }
 
-  const ketQua = await ghiKetQuaPhieu(token, soDiem);
+  const ketQua = await ghiKetQuaPhieu(token, soDiem, yKienKhac);
   if (ketQua === null) {
     return NextResponse.json(
       { loi: "Khong tim thay phieu khao sat nay." },

@@ -1,4 +1,4 @@
-import { layDanhSachGiangVien, layDanhSachKhoa } from "@/lib/data";
+import { layDanhSachDonViMien, layDanhSachGiangVien, layDanhSachKhoa } from "@/lib/data";
 import KhoaChungForm from "./KhoaChungForm";
 
 export const dynamic = "force-dynamic";
@@ -10,11 +10,12 @@ export default async function KhaoSatChungPage({
 }) {
   const { maKhoa, maGV, ngayDay } = await params;
 
-  let khoas, giangViens;
+  let khoas, giangViens, donVis, miens;
   try {
-    [{ rows: khoas }, { rows: giangViens }] = await Promise.all([
+    [{ rows: khoas }, { rows: giangViens }, { donVis, miens }] = await Promise.all([
       layDanhSachKhoa(),
       layDanhSachGiangVien(),
+      layDanhSachDonViMien(),
     ]);
   } catch (err) {
     return (
@@ -57,7 +58,13 @@ export default async function KhaoSatChungPage({
           khong gan voi ten hoc vien.
         </p>
       </div>
-      <KhoaChungForm maKhoa={maKhoa} maGV={maGV} ngayDay={ngayDay} />
+      <KhoaChungForm
+        maKhoa={maKhoa}
+        maGV={maGV}
+        ngayDay={ngayDay}
+        donVis={donVis}
+        miens={miens}
+      />
     </main>
   );
 }

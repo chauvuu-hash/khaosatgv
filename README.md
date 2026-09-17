@@ -11,7 +11,7 @@ xong 1 buoi.
 
 ### 1.1. Tao Google Sheet lam "database"
 
-Tao 1 Google Sheet moi, gom 4 tab (dong 1 la ten cot, dung chinh xac nhu
+Tao 1 Google Sheet moi, gom 5 tab (dong 1 la ten cot, dung chinh xac nhu
 duoi day):
 
 **Tab `GiangVien`**
@@ -31,10 +31,25 @@ Cot `QTDT` ghi ten QTDT phu trach (Phuc / Chau), dung de tinh KPI QTDT.
 | MaHV | HoTen | Email | DonVi | Mien | MaKhoa |
 |---|---|---|---|---|---|
 
+**Tab `DonVi`** — danh sach Don vi / Mien de xo thu muc chon trong form khao
+sat dung chung (thay vi hoc vien tu go). Cot B = danh sach Don vi, cot C =
+danh sach Mien, **2 danh sach doc lap** (khong can khop hang voi nhau, do
+dai khac nhau tuy y):
+| (bo trong) | DonVi | Mien |
+|---|---|---|
+| | Dai BRCD | Mien Bac |
+| | Dai Di dong | Mien Trung |
+| | Dai CNTT&DVS | Mien Nam |
+| | ... (chi con DonVi, cot Mien de trong) | |
+
 **Tab `PhieuKhaoSat`** — de trong, he thong tu ghi. Chi can co dong header:
 ```
-MaPhieu	MaHV	MaKhoa	MaGV	NgayDay	NgayGui	NgayHoanThanh	Diem1	Diem2	Diem3	Diem4	Diem5	Diem6	Diem7	Diem8	Diem9	Diem10	DiemTB	TrangThai
+MaPhieu	MaHV	MaKhoa	MaGV	NgayDay	NgayGui	NgayHoanThanh	Diem1	Diem2	Diem3	Diem4	Diem5	Diem6	Diem7	Diem8	Diem9	Diem10	DiemTB	TrangThai	HoTenNhap	DonViNhap	MienNhap	YKienKhac
 ```
+4 cot cuoi (`HoTenNhap`, `DonViNhap`, `MienNhap`, `YKienKhac`) — 3 cot dau
+chi co gia tri khi nop qua "link dung chung" (khong co MaHV vi chua co danh
+sach hoc vien); `YKienKhac` la cau 11 (y kien dong gop tu do, khong bat
+buoc), ap dung cho ca 2 luong nop phieu.
 
 ### 1.2. Cap quyen doc/ghi Google Sheet cho ung dung
 

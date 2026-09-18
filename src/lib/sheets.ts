@@ -38,6 +38,8 @@ const HEADER_MAP: Partial<Record<TabName, Record<string, string>>> = {
     "Đơn vị": "DonVi",
     "Miền": "Mien",
     "Mã khoá": "MaKhoa",
+    "Đợt": "MaDot",
+    "Mã đợt": "MaDot",
   },
 };
 

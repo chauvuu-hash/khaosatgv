@@ -11,6 +11,7 @@ import type { PhieuKhaoSat } from "@/lib/types";
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const maKhoa = body?.maKhoa;
+  const maDot: string | undefined = typeof body?.maDot === "string" ? body.maDot : undefined;
   const danhSachGVRaw = body?.danhSachGV;
   const maHVDaChon: string[] | undefined = body?.maHVDaChon;
 
@@ -53,6 +54,9 @@ export async function POST(req: NextRequest) {
     ]);
 
     let dsHocVien = hocViens.filter((hv) => hv.MaKhoa === maKhoa);
+    if (maDot) {
+      dsHocVien = dsHocVien.filter((hv) => hv.MaDot === maDot);
+    }
     if (Array.isArray(maHVDaChon) && maHVDaChon.length > 0) {
       dsHocVien = dsHocVien.filter((hv) => maHVDaChon.includes(hv.MaHV));
     }

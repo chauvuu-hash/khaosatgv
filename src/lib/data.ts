@@ -23,15 +23,31 @@ export type KetQuaUploadHocVien = {
 /**
  * Them hang loat hoc vien tu file CSV admin upload len. Tu sinh MaHV neu
  * dong khong co san (tiep theo so lon nhat hien co dang so). Bo qua dong
- * trung Email (khong phan biet hoa/thuong) voi hoc vien da co san, de tranh
- * upload trung 1 danh sach 2 lan.
+ * trung (Email + Ma khoa + Ma dot, khong phan biet hoa/thuong) voi hoc vien
+ * da co san, de tranh upload trung 1 danh sach 2 lan - CHU Y: chi tinh trung
+ * trong CUNG 1 dot, vi 1 hoc vien co the hoc lai dung 1 Ma khoa o dot khac
+ * (vd lop "chuyen doi" mo hang thang deu dung chung ma khoa).
+ *
+ * maDotMacDinh: ma dot ap dung cho ca file neu dong CSV khong co cot Dot
+ * rieng (thuong 1 file = 1 dot).
  */
 export async function themHocVienHangLoat(
-  dongTho: { MaHV?: string; HoTen?: string; Email?: string; DonVi?: string; Mien?: string; MaKhoa?: string }[]
+  dongTho: {
+    MaHV?: string;
+    HoTen?: string;
+    Email?: string;
+    DonVi?: string;
+    Mien?: string;
+    MaKhoa?: string;
+    MaDot?: string;
+  }[],
+  maDotMacDinh: string
 ): Promise<KetQuaUploadHocVien> {
   const { rows: hienCo } = await layDanhSachHocVien();
-  const emailDaCo = new Set(
-    hienCo.map((h) => h.Email.trim().toLowerCase()).filter((e) => e)
+  const khoaDotDaCo = new Set(
+    hienCo
+      .filter((h) => h.Email.trim())
+      .map((h) => `${h.Email.trim().toLowerCase()}__${h.MaKhoa}__${h.MaDot ?? ""}`)
   );
   let maxMaHVSo = 0;
   for (const h of hienCo) {
@@ -45,12 +61,14 @@ export async function themHocVienHangLoat(
   dongTho.forEach((d, i) => {
     const hoTen = (d.HoTen ?? "").trim();
     const maKhoa = (d.MaKhoa ?? "").trim();
+    const maDot = (d.MaDot ?? "").trim() || maDotMacDinh;
     const email = (d.Email ?? "").trim();
     if (!hoTen || !maKhoa) {
       ketQua.loi.push({ dong: i + 2, ly_do: "Thieu Ho ten hoac Ma khoa" });
       return;
     }
-    if (email && emailDaCo.has(email.toLowerCase())) {
+    const khoaDotKey = `${email.toLowerCase()}__${maKhoa}__${maDot}`;
+    if (email && khoaDotDaCo.has(khoaDotKey)) {
       ketQua.soTrung++;
       return;
     }
@@ -59,7 +77,7 @@ export async function themHocVienHangLoat(
       maxMaHVSo++;
       maHV = String(maxMaHVSo);
     }
-    if (email) emailDaCo.add(email.toLowerCase());
+    if (email) khoaDotDaCo.add(khoaDotKey);
     dongMoi.push({
       MaHV: maHV,
       HoTen: hoTen,
@@ -67,6 +85,7 @@ export async function themHocVienHangLoat(
       DonVi: (d.DonVi ?? "").trim(),
       Mien: (d.Mien ?? "").trim(),
       MaKhoa: maKhoa,
+      MaDot: maDot,
     });
   });
 

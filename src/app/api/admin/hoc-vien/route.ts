@@ -3,9 +3,11 @@ import { layDanhSachHocVien, themHocVienHangLoat } from "@/lib/data";
 
 export async function GET(req: NextRequest) {
   const maKhoa = req.nextUrl.searchParams.get("maKhoa");
+  const maDot = req.nextUrl.searchParams.get("maDot");
   try {
     const { rows } = await layDanhSachHocVien();
-    const ds = maKhoa ? rows.filter((h) => h.MaKhoa === maKhoa) : rows;
+    let ds = maKhoa ? rows.filter((h) => h.MaKhoa === maKhoa) : rows;
+    if (maDot) ds = ds.filter((h) => h.MaDot === maDot);
     return NextResponse.json({ hocViens: ds });
   } catch (err) {
     return NextResponse.json(
@@ -19,14 +21,21 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const dong = body?.dong;
+  const maDot = typeof body?.maDot === "string" ? body.maDot.trim() : "";
   if (!Array.isArray(dong) || dong.length === 0) {
     return NextResponse.json({ loi: "Khong co du lieu de tai len." }, { status: 400 });
+  }
+  if (!maDot) {
+    return NextResponse.json(
+      { loi: "Vui long nhap Ma dot (vd 2026-10) truoc khi tai len." },
+      { status: 400 }
+    );
   }
   if (dong.length > 5000) {
     return NextResponse.json({ loi: "File qua lon (toi da 5000 dong/lan)." }, { status: 400 });
   }
   try {
-    const ketQua = await themHocVienHangLoat(dong);
+    const ketQua = await themHocVienHangLoat(dong, maDot);
     return NextResponse.json(ketQua);
   } catch (err) {
     return NextResponse.json(

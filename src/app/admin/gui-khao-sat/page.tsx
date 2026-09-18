@@ -5,13 +5,14 @@ import GuiNhieuGVForm from "./GuiNhieuGVForm";
 
 type Khoa = { MaKhoa: string; TenKhoa: string; LoaiLop: string };
 type GiangVien = { MaGV: string; HoTen: string; QTDT: string };
-type HocVien = { MaHV: string; HoTen: string; Email: string; MaKhoa: string };
+type HocVien = { MaHV: string; HoTen: string; Email: string; MaKhoa: string; MaDot: string };
 
 export default function GuiKhaoSatPage() {
   const [khoas, setKhoas] = useState<Khoa[]>([]);
   const [giangViens, setGiangViens] = useState<GiangVien[]>([]);
-  const [hocViens, setHocViens] = useState<HocVien[]>([]);
+  const [hocViensCaKhoa, setHocViensCaKhoa] = useState<HocVien[]>([]);
   const [maKhoa, setMaKhoa] = useState("");
+  const [maDot, setMaDot] = useState("");
   const [maGV, setMaGV] = useState("");
   const [ngayDay, setNgayDay] = useState(() => new Date().toISOString().slice(0, 10));
   const [chonTatCa, setChonTatCa] = useState(true);
@@ -38,14 +39,27 @@ export default function GuiKhaoSatPage() {
     if (!maKhoa) return;
     fetch(`/api/admin/hoc-vien?maKhoa=${encodeURIComponent(maKhoa)}`)
       .then((r) => r.json())
-      .then((d) => setHocViens(d.hocViens ?? []));
+      .then((d) => setHocViensCaKhoa(d.hocViens ?? []));
   }, [maKhoa]);
+
+  const dsDot = Array.from(new Set(hocViensCaKhoa.map((h) => h.MaDot ?? "")))
+    .sort()
+    .reverse();
+  const hocViens = maDot
+    ? hocViensCaKhoa.filter((h) => h.MaDot === maDot)
+    : dsDot.length <= 1
+      ? hocViensCaKhoa
+      : [];
 
   async function guiKhaoSat() {
     setLoi(null);
     setThongBao(null);
     if (!maKhoa || !maGV) {
       setLoi("Vui long chon khoa hoc va giang vien.");
+      return;
+    }
+    if (dsDot.length > 1 && !maDot) {
+      setLoi("Khoa nay co nhieu dot, vui long chon dot can gui.");
       return;
     }
     setDangGui(true);
@@ -55,6 +69,7 @@ export default function GuiKhaoSatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           maKhoa,
+          maDot: maDot || undefined,
           maGV,
           ngayDay,
           maHVDaChon: chonTatCa ? undefined : Array.from(maHVDaChon),
@@ -112,7 +127,8 @@ export default function GuiKhaoSatPage() {
             value={maKhoa}
             onChange={(e) => {
               setMaKhoa(e.target.value);
-              setHocViens([]);
+              setHocViensCaKhoa([]);
+              setMaDot("");
               setMaHVDaChon(new Set());
             }}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
@@ -125,6 +141,29 @@ export default function GuiKhaoSatPage() {
             ))}
           </select>
         </div>
+
+        {maKhoa && dsDot.length > 1 && (
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Dot (khoa nay dung lai ma, dang co {dsDot.length} dot)
+            </label>
+            <select
+              value={maDot}
+              onChange={(e) => {
+                setMaDot(e.target.value);
+                setMaHVDaChon(new Set());
+              }}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="">-- Chon dot --</option>
+              {dsDot.map((d) => (
+                <option key={d} value={d}>
+                  {d || "(khong ro dot)"}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium mb-1">

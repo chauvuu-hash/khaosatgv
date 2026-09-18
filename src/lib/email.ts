@@ -40,12 +40,15 @@ export async function guiEmailKhaoSat(params: {
     </div>
   </div>`;
 
-  await getResend().emails.send({
+  const { error } = await getResend().emails.send({
     from,
     to: params.toEmail,
     subject: tieuDe,
     html,
   });
+  if (error) {
+    throw new Error(`Resend tu choi gui toi ${params.toEmail}: ${error.message}`);
+  }
 }
 
 /** Khoa co nhieu giang vien (vd nhieu buoi, moi buoi 1 GV) - 1 email/1 link danh gia het cac GV trong 1 lan. */
@@ -84,10 +87,13 @@ export async function guiEmailKhaoSatNhieuGV(params: {
     </div>
   </div>`;
 
-  await getResend().emails.send({
+  const { error } = await getResend().emails.send({
     from,
     to: params.toEmail,
     subject: tieuDe,
     html,
   });
+  if (error) {
+    throw new Error(`Resend tu choi gui toi ${params.toEmail}: ${error.message}`);
+  }
 }

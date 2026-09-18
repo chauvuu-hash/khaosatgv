@@ -9,9 +9,12 @@ type HocVien = {
   DonVi: string;
   Mien: string;
   MaKhoa: string;
+  MaDot: string;
 };
 
-type DongUpload = Partial<Record<"MaHV" | "HoTen" | "Email" | "DonVi" | "Mien" | "MaKhoa", string>>;
+type DongUpload = Partial<
+  Record<"MaHV" | "HoTen" | "Email" | "DonVi" | "Mien" | "MaKhoa" | "MaDot", string>
+>;
 
 type KetQuaUpload = {
   soDongDoc: number;
@@ -41,6 +44,8 @@ const HEADER_ALIASES: Record<string, keyof DongUpload> = {
   mien: "Mien",
   makhoa: "MaKhoa",
   malop: "MaKhoa",
+  dot: "MaDot",
+  madot: "MaDot",
 };
 
 /** Parse CSV don gian (ho tro truong co dau ngoac kep chua dau phay/xuong dong), khong dung thu vien ngoai. */
@@ -118,6 +123,7 @@ export default function HocVienPage() {
   const [hocViens, setHocViens] = useState<HocVien[]>([]);
   const [dangTai, setDangTai] = useState(true);
   const [timKiem, setTimKiem] = useState("");
+  const [maDot, setMaDot] = useState("");
   const [dangUpload, setDangUpload] = useState(false);
   const [ketQuaUpload, setKetQuaUpload] = useState<KetQuaUpload | null>(null);
   const [loi, setLoi] = useState<string | null>(null);
@@ -137,6 +143,10 @@ export default function HocVienPage() {
     if (!file) return;
     setLoi(null);
     setKetQuaUpload(null);
+    if (!maDot.trim()) {
+      setLoi("Vui long nhap Ma dot truoc khi chon file.");
+      return;
+    }
     if (!file.name.toLowerCase().endsWith(".csv")) {
       setLoi("Chi ho tro file .csv. Neu dang co file Excel, mo file do va chon Save As / Export -> CSV.");
       return;
@@ -152,7 +162,7 @@ export default function HocVienPage() {
       const res = await fetch("/api/admin/hoc-vien", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dong }),
+        body: JSON.stringify({ dong, maDot: maDot.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -175,6 +185,7 @@ export default function HocVienPage() {
       hv.HoTen.toLowerCase().includes(q) ||
       hv.Email.toLowerCase().includes(q) ||
       hv.MaKhoa.toLowerCase().includes(q) ||
+      (hv.MaDot ?? "").toLowerCase().includes(q) ||
       hv.MaHV.toLowerCase().includes(q)
     );
   });
@@ -196,6 +207,23 @@ export default function HocVienPage() {
           Neu danh sach dang o file Excel: mo file, chon File → Save As (hoac
           Export) → CSV UTF-8, roi tai file .csv do len day.
         </p>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Ma dot (bat buoc, vd 2026-10)
+          </label>
+          <input
+            type="text"
+            value={maDot}
+            onChange={(e) => setMaDot(e.target.value)}
+            placeholder="2026-10"
+            className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-48"
+          />
+          <p className="text-xs text-slate-400 mt-1">
+            Dung de tach hoc vien cua tung lan mo lop khi Ma khoa bi dung lai
+            nhieu thang (vd lop chuyen doi mo hang thang deu dung 1 Ma khoa).
+            Khi gui khao sat se chon theo Ma khoa + Ma dot nay.
+          </p>
+        </div>
         <input
           type="file"
           accept=".csv,text/csv"
@@ -236,7 +264,7 @@ export default function HocVienPage() {
             type="text"
             value={timKiem}
             onChange={(e) => setTimKiem(e.target.value)}
-            placeholder="Tim theo ten, email, ma khoa..."
+            placeholder="Tim theo ten, email, ma khoa, ma dot..."
             className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-64"
           />
         </div>
@@ -254,12 +282,13 @@ export default function HocVienPage() {
                   <th className="px-4 py-2 font-medium text-slate-600">Don vi</th>
                   <th className="px-4 py-2 font-medium text-slate-600">Mien</th>
                   <th className="px-4 py-2 font-medium text-slate-600">Ma khoa</th>
+                  <th className="px-4 py-2 font-medium text-slate-600">Dot</th>
                 </tr>
               </thead>
               <tbody>
                 {dsHienThi.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-4 text-slate-400 text-center">
+                    <td colSpan={7} className="px-4 py-4 text-slate-400 text-center">
                       Khong co du lieu
                     </td>
                   </tr>
@@ -272,6 +301,7 @@ export default function HocVienPage() {
                       <td className="px-4 py-2">{hv.DonVi}</td>
                       <td className="px-4 py-2">{hv.Mien}</td>
                       <td className="px-4 py-2">{hv.MaKhoa}</td>
+                      <td className="px-4 py-2">{hv.MaDot}</td>
                     </tr>
                   ))
                 )}

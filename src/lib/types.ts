@@ -23,6 +23,12 @@ export type HocVien = {
   DonVi: string;
   Mien: string;
   MaKhoa: string;
+  /**
+   * Ma dot - phan biet cac lan mo lop dung lai 1 Ma khoa (vd lop "chuyen
+   * doi" mo hang thang deu dung ma "66-CD"). Rong voi du lieu cu truoc khi
+   * co truong nay (coi nhu 1 dot duy nhat).
+   */
+  MaDot: string;
 };
 
 export type TrangThaiPhieu = "Chua nop" | "Da nop" | "Da huy";

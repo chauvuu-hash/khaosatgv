@@ -5,7 +5,7 @@ import { encodeDsGV } from "@/lib/dsGVToken";
 
 type Khoa = { MaKhoa: string; TenKhoa: string; LoaiLop: string };
 type GiangVien = { MaGV: string; HoTen: string; QTDT: string };
-type HocVien = { MaHV: string; HoTen: string; Email: string; MaKhoa: string };
+type HocVien = { MaHV: string; HoTen: string; Email: string; MaKhoa: string; MaDot: string };
 type HangGV = { maGV: string; ngayDay: string };
 
 function ngayHomNay() {
@@ -20,11 +20,12 @@ export default function GuiNhieuGVForm({
   giangViens: GiangVien[];
 }) {
   const [maKhoa, setMaKhoa] = useState("");
+  const [maDot, setMaDot] = useState("");
   const [hangGV, setHangGV] = useState<HangGV[]>([
     { maGV: "", ngayDay: ngayHomNay() },
     { maGV: "", ngayDay: ngayHomNay() },
   ]);
-  const [hocViens, setHocViens] = useState<HocVien[]>([]);
+  const [hocViensCaKhoa, setHocViensCaKhoa] = useState<HocVien[]>([]);
   const [chonTatCa, setChonTatCa] = useState(true);
   const [maHVDaChon, setMaHVDaChon] = useState<Set<string>>(new Set());
   const [dangGui, setDangGui] = useState(false);
@@ -37,8 +38,17 @@ export default function GuiNhieuGVForm({
     if (!maKhoa) return;
     fetch(`/api/admin/hoc-vien?maKhoa=${encodeURIComponent(maKhoa)}`)
       .then((r) => r.json())
-      .then((d) => setHocViens(d.hocViens ?? []));
+      .then((d) => setHocViensCaKhoa(d.hocViens ?? []));
   }, [maKhoa]);
+
+  const dsDot = Array.from(new Set(hocViensCaKhoa.map((h) => h.MaDot ?? "")))
+    .sort()
+    .reverse();
+  const hocViens = maDot
+    ? hocViensCaKhoa.filter((h) => h.MaDot === maDot)
+    : dsDot.length <= 1
+      ? hocViensCaKhoa
+      : [];
 
   function themHangGV() {
     setHangGV((prev) => [...prev, { maGV: "", ngayDay: ngayHomNay() }]);
@@ -55,6 +65,10 @@ export default function GuiNhieuGVForm({
     setThongBao(null);
     if (!maKhoa) {
       setLoi("Vui long chon ma khoa.");
+      return;
+    }
+    if (dsDot.length > 1 && !maDot) {
+      setLoi("Khoa nay co nhieu dot, vui long chon dot can gui.");
       return;
     }
     const danhSachGV = hangGV.filter((h) => h.maGV);
@@ -74,6 +88,7 @@ export default function GuiNhieuGVForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           maKhoa,
+          maDot: maDot || undefined,
           danhSachGV,
           maHVDaChon: chonTatCa ? undefined : Array.from(maHVDaChon),
         }),
@@ -132,7 +147,8 @@ export default function GuiNhieuGVForm({
           value={maKhoa}
           onChange={(e) => {
             setMaKhoa(e.target.value);
-            setHocViens([]);
+            setHocViensCaKhoa([]);
+            setMaDot("");
             setMaHVDaChon(new Set());
           }}
           className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
@@ -145,6 +161,29 @@ export default function GuiNhieuGVForm({
           ))}
         </select>
       </div>
+
+      {maKhoa && dsDot.length > 1 && (
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Dot (khoa nay dung lai ma, dang co {dsDot.length} dot)
+          </label>
+          <select
+            value={maDot}
+            onChange={(e) => {
+              setMaDot(e.target.value);
+              setMaHVDaChon(new Set());
+            }}
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">-- Chon dot --</option>
+            {dsDot.map((d) => (
+              <option key={d} value={d}>
+                {d || "(khong ro dot)"}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1">

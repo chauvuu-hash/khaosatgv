@@ -25,7 +25,7 @@ export type HocVien = {
   MaKhoa: string;
 };
 
-export type TrangThaiPhieu = "Chua nop" | "Da nop";
+export type TrangThaiPhieu = "Chua nop" | "Da nop" | "Da huy";
 
 export type PhieuKhaoSat = {
   MaPhieu: string;

@@ -222,10 +222,14 @@ export default function GuiKhaoSatPage() {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3 max-w-xl">
         <h2 className="font-semibold">Chua co danh sach hoc vien / email?</h2>
         <p className="text-sm text-slate-600">
-          Tao 1 link dung chung cho khoa + giang vien + ngay day da chon o
-          tren, gui qua Zalo/Telegram cho ca lop. Hoc vien tu dien Ho ten khi
-          vao lam khao sat. Link nay dung duoc nhieu lan (khong khoa sau khi
-          1 nguoi da nop).
+          Ap dung cho khoa 1 giang vien (form ben tren). Tao 1 link dung chung
+          cho khoa + giang vien + ngay day da chon, gui qua Zalo/Telegram cho
+          ca lop. Hoc vien tu dien Ho ten khi vao lam khao sat. Link nay dung
+          duoc nhieu lan (khong khoa sau khi 1 nguoi da nop).
+        </p>
+        <p className="text-xs text-slate-400 -mt-1">
+          Khoa co nhieu giang vien? Dung nut &quot;Tao link dung chung&quot; o
+          trong khung ben duoi.
         </p>
         <button
           type="button"

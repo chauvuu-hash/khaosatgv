@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { encodeDsGV } from "@/lib/dsGVToken";
 
 type Khoa = { MaKhoa: string; TenKhoa: string; LoaiLop: string };
 type GiangVien = { MaGV: string; HoTen: string; QTDT: string };
@@ -29,6 +30,8 @@ export default function GuiNhieuGVForm({
   const [dangGui, setDangGui] = useState(false);
   const [thongBao, setThongBao] = useState<string | null>(null);
   const [loi, setLoi] = useState<string | null>(null);
+  const [linkChung, setLinkChung] = useState<string | null>(null);
+  const [daCopy, setDaCopy] = useState(false);
 
   useEffect(() => {
     if (!maKhoa) return;
@@ -86,6 +89,38 @@ export default function GuiNhieuGVForm({
       );
     } finally {
       setDangGui(false);
+    }
+  }
+
+  function taoLinkChung() {
+    setLoi(null);
+    if (!maKhoa) {
+      setLoi("Vui long chon ma khoa.");
+      return;
+    }
+    const danhSachGV = hangGV.filter((h) => h.maGV);
+    if (danhSachGV.length < 2) {
+      setLoi("Chon it nhat 2 giang vien (neu chi 1 GV, dung link o form ben tren).");
+      return;
+    }
+    const maGVs = danhSachGV.map((h) => h.maGV);
+    if (new Set(maGVs).size !== maGVs.length) {
+      setLoi("Khong chon trung 1 giang vien 2 lan.");
+      return;
+    }
+    const dsGV = encodeDsGV(danhSachGV);
+    const url = `${window.location.origin}/khao-sat-chung-nhieu-gv/${encodeURIComponent(maKhoa)}/${encodeURIComponent(dsGV)}`;
+    setLinkChung(url);
+    setDaCopy(false);
+  }
+
+  async function copyLinkChung() {
+    if (!linkChung) return;
+    try {
+      await navigator.clipboard.writeText(linkChung);
+      setDaCopy(true);
+    } catch {
+      setLoi("Khong copy duoc, vui long bam giu va copy thu cong.");
     }
   }
 
@@ -207,6 +242,38 @@ export default function GuiNhieuGVForm({
       >
         {dangGui ? "Dang gui..." : "Gui khao sat nhieu GV"}
       </button>
+
+      <div className="border-t border-slate-100 pt-4 space-y-2">
+        <p className="text-xs text-slate-500">
+          Chua co danh sach hoc vien/email? Tao 1 link dung chung cho khoa +
+          cac GV/ngay day da chon o tren, gui qua Zalo/Telegram. Hoc vien tu
+          dien ho ten va danh gia lan luot tat ca GV trong 1 lan.
+        </p>
+        <button
+          type="button"
+          onClick={taoLinkChung}
+          className="bg-vnpt-blue text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90"
+        >
+          Tao link dung chung
+        </button>
+        {linkChung && (
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={linkChung}
+              className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-600"
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <button
+              type="button"
+              onClick={copyLinkChung}
+              className="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 shrink-0"
+            >
+              {daCopy ? "Da copy" : "Copy"}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

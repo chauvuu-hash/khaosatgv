@@ -277,10 +277,11 @@ export async function ghiKetQuaPhieu(
   maPhieu: string,
   diem: number[],
   yKienKhac: string
-): Promise<PhieuKhaoSat | null | "DA_NOP"> {
+): Promise<PhieuKhaoSat | null | "DA_NOP" | "DA_HUY"> {
   const found = await timPhieuTheoMa(maPhieu);
   if (!found) return null;
   if (found.row.TrangThai === "Da nop") return "DA_NOP";
+  if (found.row.TrangThai === "Da huy") return "DA_HUY";
   const diemTB = diem.reduce((a, b) => a + b, 0) / diem.length;
   const updated: PhieuKhaoSat = {
     ...found.row,
@@ -317,8 +318,9 @@ export async function ghiKetQuaNhomPhieu(
   headers: string[],
   diemTheoGV: Record<string, number[]>,
   yKienKhac: string
-): Promise<"OK" | "DA_NOP" | "THIEU_DIEM"> {
+): Promise<"OK" | "DA_NOP" | "DA_HUY" | "THIEU_DIEM"> {
   if (danhSach.some((d) => d.row.TrangThai === "Da nop")) return "DA_NOP";
+  if (danhSach.some((d) => d.row.TrangThai === "Da huy")) return "DA_HUY";
   if (danhSach.some((d) => !diemTheoGV[d.row.MaGV] || diemTheoGV[d.row.MaGV].length !== 10)) {
     return "THIEU_DIEM";
   }
@@ -351,4 +353,83 @@ export async function ghiKetQuaNhomPhieu(
     );
   }
   return "OK";
+}
+
+/**
+ * Huy 1 phieu (vd giang vien/QTDT gui nham email, hoc vien nghi giua chung
+ * khong hoc buoi nao). Neu phieu thuoc 1 MaNhom (luong "khoa nhieu GV" - 1
+ * email/link duy nhat gom nhieu GV), huy ca nhom luon vi ca nhom dung chung
+ * 1 dia chi email - huy rieng 1 dong se de link/email cu van dung duoc cho
+ * cac GV con lai. Phieu da huy bi loai khoi moi thong ke (xem thong-ke/route.ts)
+ * va khong nop lai duoc (xem ghiKetQuaPhieu/ghiKetQuaNhomPhieu).
+ */
+export async function huyPhieu(maPhieu: string): Promise<"OK" | "KHONG_TIM_THAY"> {
+  const { headers, rows, rowNumbers } = await layDanhSachPhieu();
+  const idx = rows.findIndex((r) => r.MaPhieu === maPhieu);
+  if (idx === -1) return "KHONG_TIM_THAY";
+  const maNhom = rows[idx].MaNhom;
+  const doiTuong = maNhom
+    ? rows
+        .map((r, i) => ({ row: r, rowNumber: rowNumbers[i] }))
+        .filter((x) => x.row.MaNhom === maNhom)
+    : [{ row: rows[idx], rowNumber: rowNumbers[idx] }];
+  for (const { row, rowNumber } of doiTuong) {
+    await updateRow(
+      TABS.PhieuKhaoSat,
+      rowNumber,
+      headers,
+      { ...row, TrangThai: "Da huy" } as unknown as Record<string, string>
+    );
+  }
+  return "OK";
+}
+
+/**
+ * Gui khao sat qua "link dung chung" cho khoa co NHIEU giang vien (khong co
+ * danh sach hoc vien/email). Giong taoPhieuDungChung nhung cham diem het cac
+ * GV trong 1 lan nop, tao 1 dong PhieuKhaoSat rieng cho moi GV, deu "Da nop"
+ * ngay (khong co giai doan "Chua nop").
+ */
+export async function taoPhieuDungChungNhieuGV(params: {
+  maKhoa: string;
+  danhSachGV: { maGV: string; ngayDay: string }[];
+  hoTen: string;
+  donVi: string;
+  mien: string;
+  diemTheoGV: Record<string, number[]>;
+  yKienKhac: string;
+}): Promise<PhieuKhaoSat[]> {
+  const now = new Date().toISOString();
+  const phieus: PhieuKhaoSat[] = params.danhSachGV.map((gv) => {
+    const diem = params.diemTheoGV[gv.maGV];
+    const diemTB = diem.reduce((a, b) => a + b, 0) / diem.length;
+    return {
+      MaPhieu: `PC${Date.now()}${Math.random().toString(36).slice(2, 10)}`,
+      MaHV: "",
+      MaKhoa: params.maKhoa,
+      MaGV: gv.maGV,
+      NgayDay: gv.ngayDay,
+      NgayGui: gv.ngayDay,
+      NgayHoanThanh: now,
+      Diem1: String(diem[0]),
+      Diem2: String(diem[1]),
+      Diem3: String(diem[2]),
+      Diem4: String(diem[3]),
+      Diem5: String(diem[4]),
+      Diem6: String(diem[5]),
+      Diem7: String(diem[6]),
+      Diem8: String(diem[7]),
+      Diem9: String(diem[8]),
+      Diem10: String(diem[9]),
+      DiemTB: diemTB.toFixed(2),
+      TrangThai: "Da nop",
+      HoTenNhap: params.hoTen,
+      DonViNhap: params.donVi,
+      MienNhap: params.mien,
+      YKienKhac: params.yKienKhac,
+      MaNhom: "",
+    };
+  });
+  await appendRows(TABS.PhieuKhaoSat, phieus as unknown as Record<string, string>[]);
+  return phieus;
 }

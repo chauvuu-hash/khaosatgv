@@ -16,8 +16,11 @@ export async function GET() {
         layDanhSachHocVien(),
       ]);
 
-    const nhom = new Map<string, typeof phieus>();
-    for (const p of phieus) {
+    // Phieu da huy (vd gui nham email) khong tinh vao bat ky thong ke nao.
+    const phieusHopLe = phieus.filter((p) => p.TrangThai !== "Da huy");
+
+    const nhom = new Map<string, typeof phieusHopLe>();
+    for (const p of phieusHopLe) {
       const key = `${p.MaKhoa}__${p.MaGV}__${p.NgayGui}`;
       const list = nhom.get(key) ?? [];
       list.push(p);

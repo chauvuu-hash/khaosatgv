@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
       `${req.nextUrl.protocol}//${req.nextUrl.host}`;
 
     const dsPhieuCanGui = phieus.filter(
-      (p) => maPhieus.includes(p.MaPhieu) && p.TrangThai !== "Da nop"
+      (p) =>
+        maPhieus.includes(p.MaPhieu) &&
+        p.TrangThai !== "Da nop" &&
+        p.TrangThai !== "Da huy"
     );
 
     const ketQuaGui = await Promise.allSettled(

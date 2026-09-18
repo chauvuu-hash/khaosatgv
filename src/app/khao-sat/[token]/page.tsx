@@ -37,6 +37,19 @@ export default async function KhaoSatPage({
     );
   }
 
+  const daHuy =
+    ketQua.loai === "don"
+      ? ketQua.row.TrangThai === "Da huy"
+      : ketQua.danhSach.some((d) => d.row.TrangThai === "Da huy");
+  if (daHuy) {
+    return (
+      <ThongBao tieuDe="Phieu da bi huy">
+        Phieu khao sat nay da bi huy boi quan tri vien (vd gui nham email).
+        Vui long lien he QTDT phu trach neu can khao sat lai.
+      </ThongBao>
+    );
+  }
+
   const daNopHet =
     ketQua.loai === "don"
       ? ketQua.row.TrangThai === "Da nop"

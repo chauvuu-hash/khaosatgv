@@ -40,6 +40,12 @@ export async function POST(
         { status: 409 }
       );
     }
+    if (ketQua === "DA_HUY") {
+      return NextResponse.json(
+        { loi: "Phieu nay da bi huy, vui long lien he QTDT phu trach." },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ ok: true });
   }
 
@@ -70,6 +76,12 @@ export async function POST(
   if (ketQua === "DA_NOP") {
     return NextResponse.json(
       { loi: "Phieu nay da duoc nop truoc do." },
+      { status: 409 }
+    );
+  }
+  if (ketQua === "DA_HUY") {
+    return NextResponse.json(
+      { loi: "Phieu nay da bi huy, vui long lien he QTDT phu trach." },
       { status: 409 }
     );
   }

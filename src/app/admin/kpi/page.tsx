@@ -85,6 +85,20 @@ export default function KpiPage() {
       ) : (
         <>
           <section>
+            <h2 className="font-semibold mb-2">Theo Quan tri dao tao (QTDT)</h2>
+            <Bang
+              cols={["QTDT", "So phieu", "Phieu dat", "Ty le", "KPI"]}
+              rows={kpiQTDT.map((k) => [
+                k.QTDT,
+                String(k.soPhieu),
+                String(k.soPhieuDat),
+                k.tyLe === null ? "-" : `${(k.tyLe * 100).toFixed(1)}%`,
+                <Badge key="b" ketQua={k} />,
+              ])}
+            />
+          </section>
+
+          <section>
             <h2 className="font-semibold mb-2">CV Quan tri he thong (CV QTHT) — gop tat ca GV</h2>
             <Bang
               cols={["Ho ten", "Vai tro", "So phieu", "Phieu dat", "Ty le", "KPI"]}
@@ -106,24 +120,11 @@ export default function KpiPage() {
           </section>
 
           <section>
-            <h2 className="font-semibold mb-2">Theo Quan tri dao tao (QTDT)</h2>
-            <Bang
-              cols={["QTDT", "So phieu", "Phieu dat", "Ty le", "KPI"]}
-              rows={kpiQTDT.map((k) => [
-                k.QTDT,
-                String(k.soPhieu),
-                String(k.soPhieuDat),
-                k.tyLe === null ? "-" : `${(k.tyLe * 100).toFixed(1)}%`,
-                <Badge key="b" ketQua={k} />,
-              ])}
-            />
-          </section>
-
-          <section>
             <h2 className="font-semibold mb-2">Theo Giang vien</h2>
             <Bang
-              cols={["Giang vien", "QTDT", "So phieu", "Phieu dat", "Ty le", "KPI"]}
-              rows={kpiGV.map((k) => [
+              cols={["STT", "Giang vien", "QTDT", "So phieu", "Phieu dat", "Ty le", "KPI"]}
+              rows={kpiGV.map((k, i) => [
+                String(i + 1),
                 k.HoTen,
                 k.QTDT,
                 String(k.soPhieu),

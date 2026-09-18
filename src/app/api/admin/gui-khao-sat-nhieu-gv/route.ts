@@ -5,7 +5,7 @@ import {
   layDanhSachKhoa,
   taoDotGuiKhaoSatNhieuGV,
 } from "@/lib/data";
-import { guiEmailKhaoSatNhieuGV } from "@/lib/email";
+import { chayTuanTu, guiEmailKhaoSatNhieuGV } from "@/lib/email";
 import type { PhieuKhaoSat } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
@@ -93,21 +93,25 @@ export async function POST(req: NextRequest) {
       theoNhom.set(p.MaNhom, list);
     }
 
-    const ketQuaGui = await Promise.allSettled(
-      Array.from(theoNhom.entries()).map(([maNhom, ds]) => {
-        const hv = dsHocVien.find((h) => h.MaHV === ds[0].MaHV);
-        if (!hv?.Email) return Promise.reject(new Error("Khong co email"));
-        return guiEmailKhaoSatNhieuGV({
-          toEmail: hv.Email,
-          hoTenHocVien: hv.HoTen,
-          tenKhoa: khoa?.TenKhoa ?? maKhoa,
-          tenGVs,
-          link: `${baseUrl}/khao-sat/${maNhom}`,
-        });
-      })
-    );
+    const ketQuaGui = await chayTuanTu(Array.from(theoNhom.entries()), ([maNhom, ds]) => {
+      const hv = dsHocVien.find((h) => h.MaHV === ds[0].MaHV);
+      if (!hv?.Email) return Promise.reject(new Error("Khong co email"));
+      return guiEmailKhaoSatNhieuGV({
+        toEmail: hv.Email,
+        hoTenHocVien: hv.HoTen,
+        tenKhoa: khoa?.TenKhoa ?? maKhoa,
+        tenGVs,
+        link: `${baseUrl}/khao-sat/${maNhom}`,
+      });
+    });
 
-    const soLoi = ketQuaGui.filter((k) => k.status === "rejected").length;
+    const thatBai = ketQuaGui.filter(
+      (k): k is PromiseRejectedResult => k.status === "rejected"
+    );
+    for (const k of thatBai) {
+      console.error("[gui-khao-sat-nhieu-gv] Loi gui email:", k.reason);
+    }
+    const soLoi = thatBai.length;
 
     return NextResponse.json({
       ok: true,

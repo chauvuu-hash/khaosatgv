@@ -1,11 +1,33 @@
-import { Resend } from "resend";
+import nodemailer, { type Transporter } from "nodemailer";
 
-function getResend(): Resend {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    throw new Error("Thieu bien moi truong RESEND_API_KEY. Xem README de dang ky Resend.");
+let cachedTransporter: Transporter | null = null;
+
+/**
+ * Gui email qua Gmail SMTP (tai khoan Gmail hien co, dung App Password) -
+ * khong can mua/xac minh domain rieng nhu Resend. Han che: Gmail thuong gioi
+ * han ~500 email/ngay/tai khoan va co the bi chan/vao spam neu gui rat
+ * nhieu lien tuc trong thoi gian ngan.
+ */
+function getTransporter(): Transporter {
+  if (cachedTransporter) return cachedTransporter;
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) {
+    throw new Error(
+      "Thieu bien moi truong GMAIL_USER / GMAIL_APP_PASSWORD. Xem README de tao App Password cho Gmail."
+    );
   }
-  return new Resend(key);
+  cachedTransporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user, pass },
+  });
+  return cachedTransporter;
+}
+
+/** Dia chi gui di luon la GMAIL_USER (Gmail khong cho gia mao dia chi khac), chi ten hien thi doi duoc. */
+function diaChiGui(): string {
+  const tenHienThi = process.env.GMAIL_FROM_NAME ?? "Khao sat giang vien";
+  return `"${tenHienThi}" <${process.env.GMAIL_USER}>`;
 }
 
 export async function guiEmailKhaoSat(params: {
@@ -16,7 +38,6 @@ export async function guiEmailKhaoSat(params: {
   link: string;
   laNhacLai?: boolean;
 }): Promise<void> {
-  const from = process.env.RESEND_FROM_EMAIL ?? "Khao sat GV <onboarding@resend.dev>";
   const tieuDe = params.laNhacLai
     ? `[Nhac nho] Khao sat chat luong giang vien - ${params.hoTenGV} - ${params.tenKhoa}`
     : `Khao sat chat luong giang vien - ${params.hoTenGV} - ${params.tenKhoa}`;
@@ -40,15 +61,12 @@ export async function guiEmailKhaoSat(params: {
     </div>
   </div>`;
 
-  const { error } = await getResend().emails.send({
-    from,
+  await getTransporter().sendMail({
+    from: diaChiGui(),
     to: params.toEmail,
     subject: tieuDe,
     html,
   });
-  if (error) {
-    throw new Error(`Resend tu choi gui toi ${params.toEmail}: ${error.message}`);
-  }
 }
 
 /** Khoa co nhieu giang vien (vd nhieu buoi, moi buoi 1 GV) - 1 email/1 link danh gia het cac GV trong 1 lan. */
@@ -60,7 +78,6 @@ export async function guiEmailKhaoSatNhieuGV(params: {
   link: string;
   laNhacLai?: boolean;
 }): Promise<void> {
-  const from = process.env.RESEND_FROM_EMAIL ?? "Khao sat GV <onboarding@resend.dev>";
   const tieuDe = params.laNhacLai
     ? `[Nhac nho] Khao sat chat luong giang vien - ${params.tenKhoa}`
     : `Khao sat chat luong giang vien - ${params.tenKhoa}`;
@@ -87,13 +104,37 @@ export async function guiEmailKhaoSatNhieuGV(params: {
     </div>
   </div>`;
 
-  const { error } = await getResend().emails.send({
-    from,
+  await getTransporter().sendMail({
+    from: diaChiGui(),
     to: params.toEmail,
     subject: tieuDe,
     html,
   });
-  if (error) {
-    throw new Error(`Resend tu choi gui toi ${params.toEmail}: ${error.message}`);
+}
+
+/**
+ * Gui 1 danh sach viec (thuong la cac lenh gui email) TUAN TU, khong song
+ * song - Gmail SMTP tu choi bot ket noi neu mo qua nhieu ket noi cung luc
+ * tu cung 1 tai khoan (khac voi Resend/SES la API HTTP chiu duoc goi song
+ * song). Tra ve dang giong Promise.allSettled de cac route giu nguyen cach
+ * dem soLoi/soThanhCong.
+ */
+export async function chayTuanTu<T>(
+  danhSach: T[],
+  viec: (item: T) => Promise<void>,
+  ngungGiuaMoiLan = 300
+): Promise<PromiseSettledResult<void>[]> {
+  const ketQua: PromiseSettledResult<void>[] = [];
+  for (const item of danhSach) {
+    try {
+      await viec(item);
+      ketQua.push({ status: "fulfilled", value: undefined });
+    } catch (err) {
+      ketQua.push({ status: "rejected", reason: err });
+    }
+    if (ngungGiuaMoiLan > 0) {
+      await new Promise((r) => setTimeout(r, ngungGiuaMoiLan));
+    }
   }
+  return ketQua;
 }

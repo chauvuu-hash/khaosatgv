@@ -5,7 +5,7 @@ import {
   layDanhSachKhoa,
   layDanhSachPhieu,
 } from "@/lib/data";
-import { guiEmailKhaoSat } from "@/lib/email";
+import { chayTuanTu, guiEmailKhaoSat } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -37,24 +37,28 @@ export async function POST(req: NextRequest) {
         p.TrangThai !== "Da huy"
     );
 
-    const ketQuaGui = await Promise.allSettled(
-      dsPhieuCanGui.map((p) => {
-        const hv = hocViens.find((h) => h.MaHV === p.MaHV);
-        const khoa = khoas.find((k) => k.MaKhoa === p.MaKhoa);
-        const gv = giangViens.find((g) => g.MaGV === p.MaGV);
-        if (!hv?.Email) return Promise.reject(new Error("Khong co email"));
-        return guiEmailKhaoSat({
-          toEmail: hv.Email,
-          hoTenHocVien: hv.HoTen,
-          hoTenGV: gv?.HoTen ?? p.MaGV,
-          tenKhoa: khoa?.TenKhoa ?? p.MaKhoa,
-          link: `${baseUrl}/khao-sat/${p.MaPhieu}`,
-          laNhacLai: true,
-        });
-      })
-    );
+    const ketQuaGui = await chayTuanTu(dsPhieuCanGui, (p) => {
+      const hv = hocViens.find((h) => h.MaHV === p.MaHV);
+      const khoa = khoas.find((k) => k.MaKhoa === p.MaKhoa);
+      const gv = giangViens.find((g) => g.MaGV === p.MaGV);
+      if (!hv?.Email) return Promise.reject(new Error("Khong co email"));
+      return guiEmailKhaoSat({
+        toEmail: hv.Email,
+        hoTenHocVien: hv.HoTen,
+        hoTenGV: gv?.HoTen ?? p.MaGV,
+        tenKhoa: khoa?.TenKhoa ?? p.MaKhoa,
+        link: `${baseUrl}/khao-sat/${p.MaPhieu}`,
+        laNhacLai: true,
+      });
+    });
 
-    const soLoi = ketQuaGui.filter((k) => k.status === "rejected").length;
+    const thatBai = ketQuaGui.filter(
+      (k): k is PromiseRejectedResult => k.status === "rejected"
+    );
+    for (const k of thatBai) {
+      console.error("[nhac-lai] Loi gui email:", k.reason);
+    }
+    const soLoi = thatBai.length;
 
     return NextResponse.json({
       ok: true,

@@ -28,8 +28,12 @@ Cot `QTDT` ghi ten QTDT phu trach (Phuc / Chau), dung de tinh KPI QTDT.
 |---|---|---|
 
 **Tab `HocVien`**
-| MaHV | HoTen | Email | DonVi | Mien | MaKhoa |
-|---|---|---|---|---|---|
+| MaHV | HoTen | Email | DonVi | Mien | MaKhoa | Dot |
+|---|---|---|---|---|---|---|
+
+Cot `Dot` de phan biet cac lan mo lop dung lai 1 `MaKhoa` (vd lop "chuyen
+doi" mo hang thang deu dung chung 1 ma khoa) — vd `2026-09`, `2026-10`.
+Nhap khi upload CSV o `/admin/hoc-vien` (bat buoc).
 
 **Tab `DonVi`** — danh sach Don vi / Mien de xo thu muc chon trong form khao
 sat dung chung (thay vi hoc vien tu go). Cot B = danh sach Don vi, cot C =
@@ -106,12 +110,24 @@ Ket qua Cach A can 3 gia tri: `GOOGLE_OAUTH_CLIENT_ID`,
 Ket qua Cach B can 2 gia tri: `GOOGLE_SERVICE_ACCOUNT_EMAIL`,
 `GOOGLE_PRIVATE_KEY`.
 
-### 1.3. Dang ky Resend (gui email)
+### 1.3. Tao App Password cho Gmail (gui email)
 
-1. Vao https://resend.com → dang ky free bang email cong viec.
-2. Vao **API Keys** → tao 1 key moi, luu lai (chi hien 1 lan).
-3. (Tuy chon, de gui tu domain rieng thay vi `onboarding@resend.dev`) vao
-   **Domains** → xac thuc domain cua don vi.
+He thong gui email khao sat qua chinh 1 tai khoan Gmail (SMTP), khong can
+mua/xac minh domain rieng. Han che: Gmail gioi han ~500 email/ngay/tai
+khoan va co the bi chan/vao spam neu gui rat nhieu lien tuc trong thoi
+gian ngan — du dung cho quy mo tung khoa hoc/dot gui.
+
+1. Dang nhap Gmail se dung de gui (nen dung 1 tai khoan rieng cho viec
+   nay, khong dung Gmail ca nhan chinh).
+2. Bat **Xac minh 2 buoc** (2-Step Verification) neu chua bat: vao
+   https://myaccount.google.com/security → **2-Step Verification** →
+   lam theo huong dan. Gmail bat buoc phai bat 2FA moi tao duoc App
+   Password.
+3. Vao https://myaccount.google.com/apppasswords (neu link khong vao
+   duoc do giao dien khac, tim "App passwords" trong muc Security).
+4. Dat ten bat ky (vd `Khao sat GV`) → **Create** → Google hien ra 1 ma
+   16 ky tu (dang `xxxx xxxx xxxx xxxx`) → copy lai (chi hien 1 lan),
+   day la `GMAIL_APP_PASSWORD` — **khong phai** mat khau Gmail thuong.
 
 ### 1.4. Bien moi truong
 
@@ -129,8 +145,9 @@ GOOGLE_OAUTH_REFRESH_TOKEN=
 GOOGLE_SERVICE_ACCOUNT_EMAIL=   # client_email trong file JSON
 GOOGLE_PRIVATE_KEY=       # private_key trong file JSON, giu nguyen \n
 
-RESEND_API_KEY=
-RESEND_FROM_EMAIL="Khao sat giang vien <onboarding@resend.dev>"
+GMAIL_USER=               # dia chi Gmail dung de gui (vd khaosatgv@gmail.com)
+GMAIL_APP_PASSWORD=       # ma 16 ky tu tao o buoc 1.3, khong phai mat khau Gmail
+GMAIL_FROM_NAME=          # ten hien thi khi hoc vien nhan email (tuy chon, mac dinh "Khao sat giang vien")
 ADMIN_PASSWORD=           # mat khau dung chung cho trang noi bo QTDT
 NEXT_PUBLIC_BASE_URL=     # de trong khi chay local
 ```
@@ -154,7 +171,7 @@ Mo http://localhost:3000 — trang chu co nut vao "Trang noi bo QTDT"
 
 - **`/admin/gui-khao-sat`**: QTDT chon khoa hoc + giang vien vua day xong +
   ngay day → bam "Gui khao sat" → he thong tao 1 phieu (chua nop) va 1 link
-  rieng cho moi hoc vien trong danh sach khoa, gui email qua Resend.
+  rieng cho moi hoc vien trong danh sach khoa, gui email qua Gmail SMTP.
 - **Khoa co nhieu giang vien** (cung trong `/admin/gui-khao-sat`): danh cho
   khoa keo dai nhieu buoi, moi buoi 1 GV khac nhau day. Chon 1 khoa + nhieu
   GV (kem ngay day rieng tung nguoi) → moi hoc vien chi nhan **1 email/1
